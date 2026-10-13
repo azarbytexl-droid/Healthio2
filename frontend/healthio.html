@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#d32f2f" />
+  <title>HEALTHIO | Your Health, Our Priority</title>
+  <style>
+    :root{color-scheme:dark;--red:#d32f2f;--red-dark:#7f161c;--bg:#160d10;--panel:#251619;--line:#54343a;--text:#fff7f7;--muted:#e4cdd0;--green:#86efac;--brand-background:linear-gradient(125deg,#39131c 0%,#170d15 54%,#39131b 100%);--brand-glow:radial-gradient(ellipse at 50% 44%,#57212c 0,#30131c 39%,#100a10 100%)}
+    *{box-sizing:border-box}[hidden]{display:none!important}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:#ffc6c6}
+    .page{display:none;min-height:100vh}.page.active{display:flex}.welcome{position:relative;isolation:isolate;overflow:hidden;align-items:center;justify-content:center;flex-direction:column;text-align:center;min-height:100svh;padding:clamp(54px,8vh,84px) 20px 34px;background:var(--brand-background);animation:welcomeFade 1s ease both}
+    .welcome::before{content:"";position:absolute;inset:-12%;z-index:-2;background:var(--brand-glow);animation:vignetteIn 1s ease both}
+    .welcome::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 36%,#080609a8 100%)}
+    .ambient-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
+    .ambient-particle{position:absolute;width:3px;height:3px;border-radius:50%;background:#ffe2c5;box-shadow:0 0 12px 3px #f39a8270;opacity:0;animation:floatParticle var(--particle-duration,9s) ease-in-out var(--particle-delay,0s) infinite}
+    .welcome h1{font-size:clamp(2rem,6vw,4rem);margin:3px 0 6px;letter-spacing:.12em;text-shadow:0 5px 25px #0009;opacity:0;animation:welcomeTextIn .8s ease 3.55s forwards}
+    .welcome p{color:#efd5d1;font-size:clamp(1rem,2vw,1.2rem);margin:0 0 18px;opacity:0;animation:welcomeTextIn .8s ease 3.72s forwards}
+    .heart-stage{height:min(61vh,570px);min-height:390px;width:min(96vw,660px);position:relative;display:grid;place-items:center;flex:none;pointer-events:none}
+    .heart-glow{position:absolute;left:50%;top:48%;width:30%;height:27%;border-radius:50%;background:radial-gradient(ellipse,#ff6671a8 0,#bb253d61 43%,transparent 74%);filter:blur(21px);opacity:.32;transform:translate(-50%,-50%) scale(.82);animation:haloBeat 1s ease-in-out 3.9s infinite}
+    .heart-glow::after{content:"";position:absolute;inset:-30%;border:1px solid #f7988660;border-radius:50%;animation:haloRing 2s ease-out 4s infinite}
+    .heart-art{position:relative;z-index:3;width:min(48%,310px);height:auto;overflow:visible;opacity:0;transform-origin:50% 53%;filter:drop-shadow(0 15px 26px #09050b99);animation:heartArrival 1s cubic-bezier(.2,.8,.2,1) 3s forwards, heartBeat 1s ease-in-out 4s infinite}
+    .heart-body{fill:url(#heartTissue);stroke:#ffc4ad;stroke-opacity:.52;stroke-width:2}
+    .heart-shadow{fill:#641626;opacity:.4}
+    .vessel-red{fill:none;stroke:url(#artery);stroke-width:17;stroke-linecap:round;stroke-linejoin:round}
+    .vessel-blue{fill:none;stroke:url(#vein);stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
+    .vessel-highlight{fill:none;stroke:#ffc1aa;stroke-opacity:.48;stroke-width:2.2;stroke-linecap:round}
+    .coronary{fill:none;stroke:#f8a18f;stroke-width:5.6;stroke-linecap:round;stroke-linejoin:round;filter:url(#softGlow)}
+    .coronary-branch{fill:none;stroke:#ffc0a3;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+    .heart-detail{fill:none;stroke:#722138;stroke-opacity:.65;stroke-width:2}
+    .botanical{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:visible;pointer-events:none}
+    .vine{fill:none;stroke:#56734d;stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:vineGrow 2s cubic-bezier(.3,.7,.25,1) 1s forwards}
+    .vine.secondary{stroke:#81905c;stroke-width:2;opacity:.75}
+    .leaf{fill:url(#leafFill);stroke:#adc17e;stroke-opacity:.42;stroke-width:1.2;transform-box:fill-box;transform-origin:center;opacity:0;animation:leafOpen .65s ease var(--bloom-delay,2s) forwards}
+    .flower{opacity:0;transform-box:fill-box;transform-origin:center;scale:.05;rotate:-18deg;animation:bloom .7s cubic-bezier(.18,.8,.25,1.12) var(--bloom-delay,2s) forwards,flowerSway 4s ease-in-out calc(var(--bloom-delay,2s) + .7s) infinite}
+    .petal{fill:url(#petalFill);stroke:#ffd1c4;stroke-opacity:.48;stroke-width:1}
+    .petal-inner{fill:#f5a283;stroke:#ffe0c7;stroke-opacity:.32;stroke-width:1}
+    .flower-center{fill:#f8d59b;filter:url(#softGlow)}
+    .falling-petal{fill:#efac9d;opacity:0;transform-box:fill-box;transform-origin:center;animation:petalFall 7s ease-in 5.5s infinite}
+    .falling-petal:nth-of-type(2){animation-delay:8.5s;animation-duration:8s}
+    .falling-petal:nth-of-type(3){animation-delay:11s;animation-duration:7.5s}
+    .start-btn{min-width:174px;font-size:1.06rem;letter-spacing:.15em;text-transform:uppercase;color:#351820;background:linear-gradient(135deg,#f7d1b6,#d69482 56%,#f2c5a6);border:1px solid #ffe0c7;box-shadow:0 0 0 1px #bf7b7160,0 8px 28px #d6887370,0 0 36px #ebae9360;opacity:0;translate:0 12px;animation:startAppear .8s cubic-bezier(.2,.8,.2,1) 4.25s forwards;transition:transform .25s,box-shadow .25s,filter .25s}
+    .start-btn:hover{background:linear-gradient(135deg,#ffe1cb,#e7a28d 56%,#ffdbb8);transform:translateY(-4px) scale(1.025);filter:brightness(1.08);box-shadow:0 0 0 1px #ffe2cd,0 12px 35px #e08a7aa8,0 0 48px #ffc09a9c}
+    .welcome.energized .heart-art{animation-duration:.72s,.72s}
+    .welcome.launching .heart-art{animation:launchBeat .42s cubic-bezier(.18,.75,.2,1) both}
+    .welcome.launching .flower{animation:bloom .22s ease-out both}
+    .welcome.launching .start-btn{animation:none;opacity:0}
+    @keyframes welcomeFade{from{opacity:0}to{opacity:1}}
+    @keyframes vignetteIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
+    @keyframes startAppear{to{opacity:1;translate:0 0}}
+    @keyframes floatParticle{0%{opacity:0;transform:translate3d(0,12px,0) scale(.7)}20%{opacity:.72}80%{opacity:.42}100%{opacity:0;transform:translate3d(24px,-85px,0) scale(1.3)}}
+    @keyframes welcomeTextIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes vineGrow{to{stroke-dashoffset:0}}
+    @keyframes leafOpen{from{opacity:0;transform:scale(.15) rotate(-20deg)}to{opacity:.95;transform:scale(1) rotate(0)}}
+    @keyframes bloom{0%{opacity:0;scale:.05;rotate:-18deg}70%{opacity:1;scale:1.12;rotate:4deg}100%{opacity:1;scale:1;rotate:0deg}}
+    @keyframes flowerSway{0%,100%{rotate:0deg}50%{rotate:3deg}}
+    @keyframes heartArrival{from{opacity:0;transform:translateY(16px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes heartBeat{0%,33%,100%{scale:1}8%{scale:1.06}16%{scale:1}24%{scale:1.035}}
+    @keyframes launchBeat{0%{scale:1}32%{scale:1.15}60%{scale:.98}100%{scale:1.03}}
+    @keyframes haloBeat{0%,33%,100%{opacity:.3;scale:.86}8%{opacity:.72;scale:1.13}24%{opacity:.5;scale:1.02}}
+    @keyframes haloRing{0%{opacity:.5;transform:scale(.72)}100%{opacity:0;transform:scale(1.9)}}
+    @keyframes petalFall{0%{opacity:0;transform:translate(0,-22px) rotate(0)}12%{opacity:.75}100%{opacity:0;transform:translate(30px,210px) rotate(220deg)}}
+    .btn{border:0;border-radius:14px;padding:13px 20px;font-weight:700;background:var(--red);color:white;box-shadow:0 8px 24px #0005;transition:transform .18s,background .18s}.btn:hover{background:#ef4444;transform:translateY(-2px)}.btn:disabled{opacity:.65;cursor:wait;transform:none}.btn.outline{background:transparent;border:1px solid #ad7178;box-shadow:none}.btn.small{padding:8px 12px;border-radius:10px;font-size:.9rem}
+    .start-btn{min-width:170px;font-size:1.15rem;letter-spacing:.12em}.start-btn:hover{background:linear-gradient(135deg,#ffe1cb,#e7a28d 56%,#ffdbb8);transform:translateY(-4px) scale(1.025);filter:brightness(1.08);box-shadow:0 0 0 1px #ffe2cd,0 12px 35px #e08a7aa8,0 0 48px #ffc09a9c}
+    .loading-page{--loading-red:#ff2d55;position:relative;isolation:isolate;align-items:center;justify-content:center;overflow:hidden;padding:24px;background:var(--brand-background)}
+    .loading-page::before{content:"";position:absolute;inset:-12%;z-index:-1;background:var(--brand-glow);pointer-events:none}
+    .load-card{width:min(960px,100%);padding:24px 0;text-align:center}
+    .loader-visual{position:relative;width:min(92vw,900px);aspect-ratio:5/1;margin:0 auto 26px;display:grid;place-items:center}
+    .ecg-line{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .ecg-trace{fill:none;stroke:var(--loading-red);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 5px #ff2d55) drop-shadow(0 0 13px #ff2d5588);opacity:0;animation:ecgDraw 3s linear infinite}
+    .heartbeat{position:relative;z-index:1;width:clamp(58px,9vw,94px);height:clamp(58px,9vw,94px);display:grid;place-items:center;color:var(--loading-red);filter:drop-shadow(0 0 9px #ff2d55) drop-shadow(0 0 24px #ff2d5588);animation:loaderBeat 1s ease-in-out infinite}
+    .heartbeat svg{width:72%;height:72%;overflow:visible}
+    .heartbeat path{fill:currentColor}
+    .heartbeat-ripple{position:absolute;inset:0;border:1px solid #ff2d5580;border-radius:50%;animation:rippleBeat 1s ease-out infinite;pointer-events:none}
+    .heartbeat-ripple:last-child{animation-delay:.16s}
+    .loader-label{margin:0;color:var(--loading-red);font-size:clamp(1.05rem,3vw,1.35rem);letter-spacing:.08em;text-shadow:0 0 12px #ff2d557d;animation:loaderTextBeat 1s ease-in-out infinite}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @keyframes ecgDraw{0%{stroke-dashoffset:1;opacity:0}8%{opacity:1}74%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+    @keyframes loaderBeat{0%,16%,33%,100%{transform:scale(1)}8%{transform:scale(1.15)}24%{transform:scale(1.1)}}
+    @keyframes rippleBeat{0%{transform:scale(.68);opacity:.6}58%,100%{transform:scale(1.8);opacity:0}}
+    @keyframes loaderTextBeat{0%,16%,33%,100%{opacity:.62}8%{opacity:1}24%{opacity:.88}}
+    .auth-page{position:relative;isolation:isolate;align-items:center;justify-content:center;overflow:hidden;padding:22px;background:var(--brand-background)}.auth-page::before{content:"";position:absolute;inset:-12%;z-index:-1;background:var(--brand-glow);pointer-events:none}.auth-card{width:min(480px,100%);padding:28px;background:#241619;border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 80px #0008}.auth-card h2{text-align:center;margin:0 0 8px}.auth-card>p{text-align:center;color:var(--muted);margin:0 0 18px}.auth-tabs{display:flex;gap:8px;margin-bottom:18px}.auth-tabs button{flex:1}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:.93rem;font-weight:700}.field input,.field select,.field textarea,.control{background:#170f12;color:var(--text);border:1px solid #63434a;border-radius:10px;padding:12px;width:100%}.field input:focus,.field select:focus,.field textarea:focus,.control:focus{outline:2px solid #ef4444;outline-offset:1px}.password-row{display:flex;gap:8px}.password-row input{flex:1}.form-error{min-height:1.4em;color:#ffaaaa}.auth-submit{width:100%;margin-top:8px}
+    .app{display:none;position:relative;isolation:isolate;min-height:100vh;background:var(--brand-background)}.app::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--brand-glow);pointer-events:none}.app.active{display:block}.topbar{position:sticky;top:0;z-index:20;background:#170f12f2;border-bottom:1px solid var(--line);padding:12px clamp(12px,3vw,28px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;backdrop-filter:blur(12px)}.brand{font-size:1.15rem;font-weight:900;letter-spacing:.04em;color:#ff777b}.top-actions{display:flex;gap:8px;align-items:center}.nav{display:flex;flex-wrap:wrap;gap:6px}.nav button{border:1px solid transparent;background:transparent;color:var(--muted);border-radius:10px;padding:9px 11px}.nav button:hover,.nav button[aria-current=page]{color:white;background:#692128;border-color:#a94149}.container{max-width:1180px;margin:0 auto;padding:26px 18px 60px}.view{display:none}.view.active{display:block}.section-title{margin:0 0 8px;font-size:clamp(1.5rem,3vw,2.2rem)}.muted{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}.card{grid-column:span 12;padding:20px;border:1px solid var(--line);border-radius:18px;background:#251619d9;box-shadow:0 12px 32px #0003}.half{grid-column:span 6}.third{grid-column:span 4}.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px;margin-top:24px}.feature-button{min-height:150px;text-align:left;padding:22px;border-radius:18px;border:1px solid #744148;background:linear-gradient(145deg,#692128,#2a171b);color:white;display:flex;flex-direction:column;justify-content:space-between;gap:18px;transition:transform .18s,border-color .18s}.feature-button:hover{transform:translateY(-3px);border-color:#ff777b}.feature-icon{font-size:30px}.feature-button strong{font-size:1.12rem}.feature-button span:last-child{color:#f1cdd0}.actions,.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.row>*{flex:1}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end}.list{display:grid;gap:10px;margin-top:16px}.item{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:13px;border:1px solid #56373c;background:#1a1114;border-radius:12px}.item small{display:block;color:var(--muted);margin-top:4px}.notice{padding:13px 15px;border-radius:12px;background:#542025;border:1px solid #963b43;line-height:1.5}.notice.safe{background:#153222;border-color:#2e7146}.empty{padding:16px;border:1px dashed #78444b;border-radius:12px;color:var(--muted)}.blank-page{min-height:calc(100vh - 80px);background:#8f1e25}
+    .toast{position:fixed;z-index:50;bottom:20px;left:50%;transform:translate(-50%,12px);opacity:0;pointer-events:none;transition:.2s;background:#fff;color:#291417;border-radius:12px;padding:12px 16px;box-shadow:0 8px 32px #0008;max-width:calc(100% - 32px)}.toast.show{opacity:1;transform:translate(-50%,0)}.source{font-size:.88rem}.chat-response{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;margin:.5rem 0 0}
+    .language-picker{position:fixed;top:12px;right:12px;z-index:60;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #ad7178;border-radius:12px;background:#170f12eF;box-shadow:0 8px 24px #0005;font-size:.9rem}.language-picker select{max-width:145px;padding:6px 8px;border:1px solid #63434a;border-radius:8px;background:#170f12;color:var(--text)}
+    @media(max-width:760px){.topbar{position:static}.nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap}.nav button{white-space:nowrap}.half,.third{grid-column:span 12}.container{padding:20px 13px 44px}.auth-card{padding:22px 18px}.load-card{padding:20px 14px}.feature-button{min-height:120px}.welcome{padding-top:74px}.heart-stage{height:min(52vh,470px);min-height:330px;width:100%}.heart-art{width:min(53%,280px)}.welcome h1{font-size:clamp(2rem,10vw,3.2rem)}.botanical{inset:0;width:100%;height:100%}}
+    @media(max-height:650px) and (min-width:761px){.welcome{padding-top:64px}.heart-stage{height:56vh;min-height:280px}.heart-art{width:min(38%,260px)}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.welcome h1,.welcome p,.heart-art,.heart-glow,.start-btn{opacity:1!important;animation:none!important;transform:none!important;translate:none!important}.vine{stroke-dashoffset:0;animation:none!important}.flower{opacity:1;scale:1;rotate:0deg;animation:none!important}.leaf{opacity:1;transform:none;animation:none!important}.ambient-particle{display:none}.ecg-trace{stroke-dashoffset:0;opacity:1;animation:none!important}.heartbeat,.loader-label{animation:none!important;transform:none!important;opacity:1!important}.heartbeat-ripple{display:none}}
+  </style>
+</head>
+<body>
+  <label class="language-picker"><span id="languageLabel">Language</span><select id="languageSelect" aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option></select></label>
+  <section id="welcome" class="page welcome active" aria-labelledby="welcome-title">
+    <div class="ambient-particles" aria-hidden="true"></div>
+    <div class="heart-stage">
+      <div class="heart-glow" aria-hidden="true"></div>
+      <svg class="botanical" viewBox="0 0 600 540" aria-hidden="true">
+        <defs>
+          <linearGradient id="petalFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe0cf"/><stop offset=".55" stop-color="#d97d82"/><stop offset="1" stop-color="#8d344d"/></linearGradient>
+          <linearGradient id="leafFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b8c77b"/><stop offset="1" stop-color="#476346"/></linearGradient>
+          <linearGradient id="heartTissue" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#ff9a86"/><stop offset=".33" stop-color="#c94355"/><stop offset=".72" stop-color="#a21f3c"/><stop offset="1" stop-color="#65152e"/></linearGradient>
+          <linearGradient id="artery" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb39a"/><stop offset=".4" stop-color="#d64c56"/><stop offset="1" stop-color="#822039"/></linearGradient>
+          <linearGradient id="vein" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a9d0d2"/><stop offset=".42" stop-color="#507c97"/><stop offset="1" stop-color="#263e60"/></linearGradient>
+          <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g class="vines">
+          <path class="vine" pathLength="1" d="M38 520 C46 447 15 394 46 330 C70 281 43 229 70 175 C87 140 104 115 133 97"/>
+          <path class="vine" pathLength="1" d="M562 520 C554 447 585 394 554 330 C530 281 557 229 530 175 C513 140 496 115 467 97"/>
+          <path class="vine secondary" pathLength="1" d="M49 450 C93 445 105 410 108 378 M48 332 C93 339 117 318 121 288 M82 197 C117 208 138 191 145 165 M551 450 C507 445 495 410 492 378 M552 332 C507 339 483 318 479 288 M518 197 C483 208 462 191 455 165"/>
+          <path class="leaf" style="--bloom-delay:1.7s" d="M102 399 C70 390 73 365 104 374 C117 381 116 393 102 399Z"/>
+          <path class="leaf" style="--bloom-delay:1.9s" d="M91 324 C119 301 137 316 112 335 C101 340 93 335 91 324Z"/>
+          <path class="leaf" style="--bloom-delay:2s" d="M120 204 C91 193 94 170 122 181 C135 188 133 199 120 204Z"/>
+          <path class="leaf" style="--bloom-delay:2.1s" d="M498 399 C530 390 527 365 496 374 C483 381 484 393 498 399Z"/>
+          <path class="leaf" style="--bloom-delay:2.2s" d="M509 324 C481 301 463 316 488 335 C499 340 507 335 509 324Z"/>
+          <path class="leaf" style="--bloom-delay:2.3s" d="M480 204 C509 193 506 170 478 181 C465 188 467 199 480 204Z"/>
+        </g>
+        <g class="flower" style="--bloom-delay:1.25s" transform="translate(69 311)">
+          <ellipse class="petal" cy="-10" ry="12" rx="7"/><ellipse class="petal" cy="10" ry="12" rx="7"/><ellipse class="petal" cx="-10" rx="12" ry="7"/><ellipse class="petal" cx="10" rx="12" ry="7"/><ellipse class="petal-inner" cy="-7" ry="10" rx="6"/><ellipse class="petal-inner" cy="7" ry="10" rx="6"/><circle class="flower-center" r="4"/>
+        </g>
+        <g class="flower" style="--bloom-delay:1.5s" transform="translate(118 186) scale(1.25)">
+          <ellipse class="petal" cy="-12" ry="14" rx="8"/><ellipse class="petal" cy="12" ry="14" rx="8"/><ellipse class="petal" cx="-12" rx="14" ry="8"/><ellipse class="petal" cx="12" rx="14" ry="8"/><ellipse class="petal" cx="-9" cy="-9" ry="13" rx="7" transform="rotate(-45 -9 -9)"/><ellipse class="petal" cx="9" cy="-9" ry="13" rx="7" transform="rotate(45 9 -9)"/><ellipse class="petal" cx="-9" cy="9" ry="13" rx="7" transform="rotate(45 -9 9)"/><ellipse class="petal" cx="9" cy="9" ry="13" rx="7" transform="rotate(-45 9 9)"/><ellipse class="petal-inner" cy="-7" ry="9" rx="6"/><ellipse class="petal-inner" cy="7" ry="9" rx="6"/><ellipse class="petal-inner" cx="-7" rx="9" ry="6"/><ellipse class="petal-inner" cx="7" rx="9" ry="6"/><path class="petal-inner" d="M-5 1 C-8 -5 -2 -9 3 -5 C8 -1 3 6 -2 5 C-5 4 -5 2 -3 1"/><circle class="flower-center" r="3.5"/>
+        </g>
+        <g class="flower" style="--bloom-delay:1.7s" transform="translate(531 311)">
+          <ellipse class="petal" cy="-10" ry="12" rx="7"/><ellipse class="petal" cy="10" ry="12" rx="7"/><ellipse class="petal" cx="-10" rx="12" ry="7"/><ellipse class="petal" cx="10" rx="12" ry="7"/><ellipse class="petal-inner" cy="-7" ry="10" rx="6"/><ellipse class="petal-inner" cy="7" ry="10" rx="6"/><circle class="flower-center" r="4"/>
+        </g>
+        <g class="flower" style="--bloom-delay:1.9s" transform="translate(482 186) scale(1.25)">
+          <ellipse class="petal" cy="-12" ry="14" rx="8"/><ellipse class="petal" cy="12" ry="14" rx="8"/><ellipse class="petal" cx="-12" rx="14" ry="8"/><ellipse class="petal" cx="12" rx="14" ry="8"/><ellipse class="petal" cx="-9" cy="-9" ry="13" rx="7" transform="rotate(-45 -9 -9)"/><ellipse class="petal" cx="9" cy="-9" ry="13" rx="7" transform="rotate(45 9 -9)"/><ellipse class="petal" cx="-9" cy="9" ry="13" rx="7" transform="rotate(45 -9 9)"/><ellipse class="petal" cx="9" cy="9" ry="13" rx="7" transform="rotate(-45 9 9)"/><ellipse class="petal-inner" cy="-7" ry="9" rx="6"/><ellipse class="petal-inner" cy="7" ry="9" rx="6"/><ellipse class="petal-inner" cx="-7" rx="9" ry="6"/><ellipse class="petal-inner" cx="7" rx="9" ry="6"/><path class="petal-inner" d="M-5 1 C-8 -5 -2 -9 3 -5 C8 -1 3 6 -2 5 C-5 4 -5 2 -3 1"/><circle class="flower-center" r="3.5"/>
+        </g>
+        <g class="flower" style="--bloom-delay:2.15s" transform="translate(94 430) scale(.78)">
+          <ellipse class="petal" cy="-10" ry="12" rx="7"/><ellipse class="petal" cy="10" ry="12" rx="7"/><ellipse class="petal" cx="-10" rx="12" ry="7"/><ellipse class="petal" cx="10" rx="12" ry="7"/><circle class="flower-center" r="4"/>
+        </g>
+        <g class="flower" style="--bloom-delay:2.25s" transform="translate(506 430) scale(.78)">
+          <ellipse class="petal" cy="-10" ry="12" rx="7"/><ellipse class="petal" cy="10" ry="12" rx="7"/><ellipse class="petal" cx="-10" rx="12" ry="7"/><ellipse class="petal" cx="10" rx="12" ry="7"/><circle class="flower-center" r="4"/>
+        </g>
+        <circle class="falling-petal" cx="145" cy="227" r="4"/><circle class="falling-petal" cx="455" cy="255" r="3.5"/><circle class="falling-petal" cx="180" cy="336" r="3"/>
+      </svg>
+      <svg class="heart-art" viewBox="0 0 300 330" role="img" aria-label="A glowing, beating anatomical heart">
+        <path class="vessel-red" d="M130 85 C124 55 128 25 148 21 C166 18 171 37 167 59 M161 62 C178 37 199 36 207 47 C218 62 204 83 189 98"/>
+        <path class="vessel-blue" d="M103 91 C82 67 68 54 55 61 C39 69 48 91 69 109 M187 100 C207 77 231 70 240 84 C248 97 234 114 215 126"/>
+        <path class="heart-shadow" d="M151 286 C136 269 66 213 48 164 C29 113 59 83 94 87 C119 90 136 108 148 126 C158 103 180 81 210 85 C253 91 273 124 253 169 C235 213 174 267 151 286Z"/>
+        <path class="heart-body" d="M150 282 C133 261 70 216 51 167 C32 119 58 89 91 91 C118 93 136 113 149 135 C162 107 183 87 211 90 C249 94 269 126 250 169 C231 213 173 262 150 282Z"/>
+        <path class="heart-detail" d="M149 138 C144 170 151 198 165 218 M148 141 C127 155 108 160 87 156 M164 216 C188 203 203 184 215 158"/>
+        <path class="coronary" d="M76 137 C101 133 126 139 145 153 C160 165 166 183 165 201 C164 219 177 233 193 238 M145 153 C134 174 130 194 136 213 C141 230 134 246 123 258"/>
+        <path class="coronary-branch" d="M112 139 C108 157 112 174 124 183 M164 181 C181 174 196 164 205 147 M137 211 C119 217 103 229 96 244 M178 229 C177 249 167 263 155 273"/>
+        <path class="vessel-highlight" d="M132 83 C128 57 134 37 147 34 M165 70 C178 51 194 46 201 53 M99 96 C81 78 68 69 58 74"/>
+      </svg>
+    </div>
+    <h1 id="welcome-title">HEALTHIO</h1>
+    <p>Your Health, Our Priority.</p>
+    <button id="startButton" class="btn start-btn" type="button">START</button>
+  </section>
+
+  <section id="loading" class="page loading-page" aria-live="polite">
+    <div class="load-card" role="status" aria-live="polite">
+      <span id="loadingStatus" class="sr-only">Checking your heartbeat...</span>
+      <div class="loader-visual" aria-hidden="true">
+        <svg class="ecg-line" viewBox="0 0 900 180" preserveAspectRatio="none">
+          <path class="ecg-trace" pathLength="1" d="M0 90 H192 L216 90 L231 76 L246 106 L266 28 L288 145 L309 74 L328 90 H388 L402 90 L416 78 L430 102 L447 43 L464 130 L481 78 L496 90 H900"/>
+        </svg>
+        <div class="heartbeat">
+          <span class="heartbeat-ripple"></span>
+          <span class="heartbeat-ripple"></span>
+          <svg viewBox="0 0 100 100" focusable="false"><path d="M50 88 15 55C-5 36 8 8 31 8c9 0 16 5 19 12C54 13 61 8 70 8c23 0 36 28 16 47L50 88Z"/></svg>
+        </div>
+      </div>
+      <p class="loader-label">Loading...</p>
+    </div>
+  </section>
+
+  <section id="auth" class="page auth-page" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <h2 id="auth-title">Welcome to HEALTHIO</h2>
+      <p>Sign in or create your personal profile.</p>
+      <div class="auth-tabs" role="tablist">
+        <button id="loginTab" class="btn small" type="button" role="tab" aria-selected="true">Log in</button>
+        <button id="registerTab" class="btn outline small" type="button" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <form id="authForm" novalidate>
+        <div id="nameField" class="field" hidden><label for="fullName">Full name</label><input id="fullName" autocomplete="name" maxlength="100" /></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required maxlength="254" /></div>
+        <div class="field"><label for="password">Password</label><div class="password-row"><input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="1024" /><button id="togglePassword" type="button" class="btn outline small" aria-label="Show password">Show</button></div></div>
+        <div id="profileFields" hidden>
+          <div class="field"><label for="age">Age (optional)</label><input id="age" type="number" min="1" max="120" inputmode="numeric" /></div>
+          <div class="field"><label for="bloodGroup">Blood group (optional)</label><select id="bloodGroup"><option value="O+">O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+        </div>
+        <p id="authError" class="form-error" role="alert"></p>
+        <button id="authSubmit" class="btn auth-submit" type="submit">Log in</button>
+      </form>
+      <p><a href="#auth" id="forgotPassword">Forgot password?</a></p>
+      <p class="source">Prototype sign-in. Passwords are hashed on the server; use a unique password. This app is not a substitute for professional care.</p>
+    </div>
+  </section>
+
+  <main id="app" class="app">
+    <header class="topbar">
+      <div class="brand">♥ HEALTHIO</div>
+      <nav class="nav" aria-label="Healthcare features">
+        <button type="button" data-view="dashboard">Home</button>
+        <button type="button" data-view="doctors">Doctor finder</button>
+        <button type="button" data-view="schedule">Schedules & medicine</button>
+        <button type="button" data-view="emergency">Emergency</button>
+        <button type="button" data-view="specialists">Specialist doctors</button>
+        <button type="button" data-view="pregnancy">Pregnancy care</button>
+        <button type="button" data-view="community">Blood & helpline</button>
+      </nav>
+      <div class="top-actions"><span id="profileName" class="muted"></span><button id="logoutButton" class="btn outline small" type="button">Sign out</button></div>
+    </header>
+    <div class="container">
+      <section id="view-dashboard" class="view active" aria-labelledby="dashboard-title">
+        <h1 id="dashboard-title" class="section-title">Your health dashboard</h1>
+        <p class="muted">Choose a feature. Information and reminders are personal to your signed-in profile.</p>
+        <div class="feature-grid">
+          <button class="feature-button" type="button" data-view="doctors"><span class="feature-icon" aria-hidden="true">＋</span><strong>Doctor finder</strong><span>Search the available directory by specialty and city</span></button>
+          <button class="feature-button" type="button" data-view="schedule"><span class="feature-icon" aria-hidden="true">◷</span><strong>Tablet & food schedule</strong><span>Manage reminders and look up medicine labels</span></button>
+          <button class="feature-button" type="button" data-view="emergency"><span class="feature-icon" aria-hidden="true">♥</span><strong>Emergency & first aid</strong><span>Safe first-aid guidance and emergency call links</span></button>
+          <button class="feature-button" type="button" data-view="specialists"><span class="feature-icon" aria-hidden="true">✚</span><strong>Specialist doctors</strong><span>Browse the directory by medical specialty and city</span></button>
+          <button class="feature-button" type="button" data-view="pregnancy"><span class="feature-icon" aria-hidden="true">♡</span><strong>Pregnancy care</strong><span>10-month guide, food, movement, and prescribed medicine reminders</span></button>
+          <button class="feature-button" type="button" data-view="community"><span class="feature-icon" aria-hidden="true">♡</span><strong>Blood donation & helpline</strong><span>Voluntary donor opt-in and health education chat</span></button>
+        </div>
+        <div class="card" style="margin-top:18px"><h2>Prototype limitations</h2><p class="muted">The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Notifications require browser permission and the app must remain open. There is no clinical emergency dispatch or verified blood-bank connection.</p></div>
+      </section>
+
+      <section id="view-doctors" class="view" aria-labelledby="doctors-title">
+        <h1 id="doctors-title" class="section-title">Doctor finder</h1>
+        <p class="muted">The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Confirm details directly with the provider before seeking care.</p>
+        <div class="card">
+          <form id="doctorSearch" class="form-grid">
+            <div class="field"><label for="doctorSpecialty">Specialty</label><input id="doctorSpecialty" placeholder="Any specialty" /></div>
+            <div class="field"><label for="doctorCity">City</label><input id="doctorCity" placeholder="Search city" /></div>
+            <button class="btn" type="submit">Search directory</button>
+          </form>
+          <div id="doctorResults" class="list" aria-live="polite"><p class="empty">Search the sample directory to see matching entries.</p></div>
+        </div>
+      </section>
+
+      <section id="view-schedule" class="view" aria-labelledby="schedule-title">
+        <h1 id="schedule-title" class="section-title">Tablet & food schedule</h1>
+        <p class="muted">Add reminders based on your clinician's instructions. This app does not prescribe medicines or change a dose.</p>
+        <div class="grid">
+          <div class="card half">
+            <h2>Add a reminder</h2>
+            <form id="scheduleForm">
+              <div class="field"><label for="scheduleKind">Reminder type</label><select id="scheduleKind"><option value="medicine">Prescribed medicine</option><option value="food">Meal</option><option value="hydration">Hydration</option><option value="activity">Gentle activity</option></select></div>
+              <div class="field"><label for="scheduleTitle">Name</label><input id="scheduleTitle" required maxlength="120" placeholder="Medicine or meal name" /></div>
+              <div class="field"><label for="scheduleTime">Time</label><input id="scheduleTime" type="time" required /></div>
+              <div class="field"><label for="scheduleDetails">Notes (optional)</label><input id="scheduleDetails" maxlength="300" placeholder="Use only clinician-provided instructions" /></div>
+              <div class="actions"><button class="btn" type="submit">Save reminder</button><button id="notifyPermission" class="btn outline" type="button">Enable notifications</button></div>
+              <p id="notificationStatus" class="muted" aria-live="polite">Notifications are off until you grant browser permission.</p>
+            </form>
+          </div>
+          <div class="card half">
+            <h2>Your reminders</h2>
+            <div id="scheduleList" class="list" aria-live="polite"><p class="empty">Loading reminders…</p></div>
+          </div>
+          <div class="card">
+            <h2>Medical records</h2>
+            <p class="muted">Upload a prescription or report for extraction. AI processing needs an ANTHROPIC_API_KEY; without it, the backend uses a clearly marked demo fallback.</p>
+            <form id="uploadForm" class="form-grid">
+              <div class="field"><label for="recordFile">PDF or image</label><input id="recordFile" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required /></div>
+              <button class="btn" type="submit">Upload record</button>
+            </form>
+            <div id="recordResults" class="list" aria-live="polite"></div>
+            <h3>Tablets found in uploaded records</h3>
+            <p class="source muted">This is automated text extraction, not a verified prescription. Check the original document and confirm every medicine and instruction with your clinician or pharmacist.</p>
+            <div id="recordMedicineList" class="list" aria-live="polite"><p class="empty">Upload a prescription or report to review extracted medicine names.</p></div>
+          </div>
+          <div class="card">
+            <h2>Medicine information lookup</h2>
+            <p class="muted">Searches FDA drug-label data. Information may not match local brands or your personal circumstances. Ask a doctor or pharmacist about allergies, interactions, and treatment decisions.</p>
+            <form id="medicineSearch" class="form-grid">
+              <div class="field"><label for="medicineQuery">Medicine name</label><input id="medicineQuery" required maxlength="100" placeholder="Brand or generic name" /></div>
+              <button class="btn" type="submit">Search official labels</button>
+            </form>
+            <div id="medicineResults" class="list" aria-live="polite"></div>
+            <p class="source">Source: <a href="https://open.fda.gov/apis/drug/label/" target="_blank" rel="noopener noreferrer">openFDA drug labeling API</a>. Labels are not a substitute for clinical advice.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-emergency" class="view" aria-labelledby="emergency-title">
+        <h1 id="emergency-title" class="section-title">Emergency & first aid</h1>
+        <div class="notice"><strong>Life-threatening symptoms?</strong> For severe chest pain, trouble breathing, unconsciousness, stroke signs, or suspected heart attack, contact emergency services now. Do not wait for this app or chatbot.</div>
+        <div class="card">
+          <h2>Call for emergency help</h2>
+          <p class="muted">If you are in India, call 112 for emergency assistance or 108 for ambulance service where available. Elsewhere, call your local emergency number.</p>
+          <div class="actions"><a class="btn" href="tel:112">Call 112 (India)</a><a class="btn outline" href="tel:108">Call 108 (ambulance, India)</a></div>
+        </div>
+        <div class="card">
+          <h2>Home first aid while help is coming</h2>
+          <p class="muted">These are basic safety steps, not home treatment. Call emergency services first for severe or worsening symptoms; do not wait for a doctor to arrive through this app.</p>
+          <ul class="muted">
+            <li>Stay with the person, keep them as calm and comfortable as possible, and follow the emergency operator's instructions.</li>
+            <li>Unlock the entrance and ask someone to guide responders to the patient. Share the exact address, symptoms, and when they began.</li>
+            <li>If the person is unconscious but breathing normally, place them on their side if there is no suspected neck or back injury. Do not give food, drink, or medicine.</li>
+            <li>If they are not breathing normally, call emergency services on speakerphone and start CPR only if you know how or the operator guides you.</li>
+            <li>Use an emergency medicine only if it was prescribed for that person, and follow its label or their clinician's instructions.</li>
+          </ul>
+        </div>
+        <div class="notice">
+          <strong>Doctor home visits are not available through HEALTHIO.</strong>
+          This app cannot dispatch a doctor or promise an immediate home check. Contact your local clinic directly for a home visit; if the condition may be life-threatening, call emergency services now.
+        </div>
+        <div class="grid">
+          <div class="card third"><h2>Minor cut</h2><p class="muted">Apply steady pressure with clean cloth or gauze. Once bleeding is controlled, rinse with clean running water and cover. Seek urgent care for heavy or uncontrolled bleeding or a deep wound.</p></div>
+          <div class="card third"><h2>Burn</h2><p class="muted">Cool a small thermal burn under cool running water for 20 minutes. Do not apply ice, butter, or creams. Seek urgent care for large, deep, chemical, electrical, face, or airway burns.</p></div>
+          <div class="card third"><h2>Possible stroke</h2><p class="muted">Note when symptoms started and call emergency services immediately for face drooping, arm weakness, or speech difficulty. Do not give food, drink, or medication.</p></div>
+        </div>
+        <p class="source muted">Basic first-aid education only. It is not a diagnosis or a replacement for emergency care. Guidance: <a href="https://www.redcross.org/take-a-class/first-aid/performing-first-aid/first-aid-steps" target="_blank" rel="noopener noreferrer">American Red Cross first-aid steps</a>.</p>
+      </section>
+
+      <section id="view-specialists" class="view" aria-labelledby="specialists-title">
+        <h1 id="specialists-title" class="section-title">Specialist doctors</h1>
+        <p class="muted">Browse sample and user-provided directory listings by specialty and city. HEALTHIO has not independently verified providers, credentials, affiliations, or availability; confirm details directly before seeking care.</p>
+        <div class="card">
+          <form id="specialistSearch" class="form-grid">
+            <div class="field"><label for="specialistType">Medical specialty</label><select id="specialistType"><option value="">All specialties</option><option value="Cardiology">Cardiology</option><option value="Neurology">Neurology</option><option value="Pediatrics">Pediatrics</option><option value="General Medicine">General Medicine</option><option value="Orthopedics">Orthopedics</option><option value="Psychology">Psychology</option></select></div>
+            <div class="field"><label for="specialistCity">City</label><input id="specialistCity" maxlength="100" placeholder="Search city" /></div>
+            <button class="btn" type="submit">Find specialists</button>
+          </form>
+          <div id="specialistResults" class="list" aria-live="polite"><p class="empty">Choose a specialty or city to search the directory.</p></div>
+        </div>
+      </section>
+
+      <section id="view-pregnancy" class="view" aria-labelledby="pregnancy-title">
+        <h1 id="pregnancy-title" class="section-title">Pregnancy care</h1>
+        <p class="muted">A general 40-week guide (10 approximate lunar months). Pregnancy timing and care vary; follow your obstetric clinician's advice and local prenatal schedule.</p>
+        <div class="notice"><strong>Not a treatment plan.</strong> This page does not diagnose, prescribe tablets, or recommend doses. Add a medicine reminder only for a medicine your clinician prescribed or specifically approved during pregnancy.</div>
+        <div class="grid">
+          <div class="card half">
+            <h2>10-month guide</h2>
+            <div class="field">
+              <label for="pregnancyMonth">Pregnancy month</label>
+              <select id="pregnancyMonth">
+                <option value="1">Month 1</option><option value="2">Month 2</option><option value="3">Month 3</option><option value="4">Month 4</option><option value="5">Month 5</option>
+                <option value="6">Month 6</option><option value="7">Month 7</option><option value="8">Month 8</option><option value="9">Month 9</option><option value="10">Month 10</option>
+              </select>
+            </div>
+            <article id="pregnancyMonthGuide" class="item" aria-live="polite"></article>
+            <p class="source">Weeks are approximate; use your clinician-confirmed pregnancy dating. <a href="https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/" target="_blank" rel="noopener noreferrer">NHS week-by-week pregnancy guide</a>.</p>
+          </div>
+          <div class="card half">
+            <h2>Food and hydration</h2>
+            <p class="muted">Aim for varied, balanced meals and safe food handling. Wash produce; choose thoroughly cooked foods; avoid alcohol. Food guidance differs by country and personal health, so ask your prenatal clinician about your diet and any restrictions.</p>
+            <p class="source"><a href="https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/" target="_blank" rel="noopener noreferrer">NHS foods to avoid in pregnancy</a>.</p>
+            <h2>Movement and exercise</h2>
+            <p class="muted">If your clinician says exercise is suitable for you, gentle activities such as walking may be options. ACOG describes 150 minutes of moderate activity weekly for many uncomplicated pregnancies; this is not a personal target. Ask your clinician before starting or changing exercise.</p>
+            <p class="source"><a href="https://www.acog.org/womens-health/faqs/exercise-during-pregnancy" target="_blank" rel="noopener noreferrer">ACOG exercise during pregnancy</a>.</p>
+          </div>
+          <div class="card half">
+            <h2>Add a pregnancy reminder</h2>
+            <p class="muted">Reminders are personal prompts, not medical instructions. For tablets, use the name and timing supplied by your clinician; do not start, stop, or change medicine based on this app.</p>
+            <form id="pregnancyReminderForm">
+              <div class="field"><label for="pregnancyReminderKind">Reminder type</label><select id="pregnancyReminderKind"><option value="food">Meal / hydration</option><option value="activity">Clinician-approved movement</option><option value="medicine">Clinician-prescribed tablet</option></select></div>
+              <div class="field"><label for="pregnancyReminderTitle">Reminder name</label><input id="pregnancyReminderTitle" maxlength="120" required placeholder="Enter your own reminder" /></div>
+              <div class="field"><label for="pregnancyReminderTime">Time</label><input id="pregnancyReminderTime" type="time" required /></div>
+              <div class="field"><label for="pregnancyReminderDetails">Optional note</label><input id="pregnancyReminderDetails" maxlength="220" placeholder="Use clinician-provided instructions only" /></div>
+              <button class="btn" type="submit">Save pregnancy reminder</button>
+            </form>
+            <div id="pregnancyReminderList" class="list" aria-live="polite"><p class="empty">Your pregnancy reminders will appear here.</p></div>
+          </div>
+          <div class="card half">
+            <h2>When to seek urgent help</h2>
+            <p class="muted">For severe symptoms, heavy bleeding, severe abdominal pain, difficulty breathing, fainting, or any urgent concern, contact your local emergency service or maternity unit now. Do not wait for this app.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-community" class="view" aria-labelledby="community-title">
+        <h1 id="community-title" class="section-title">Blood donation & helpline</h1>
+        <div class="grid">
+          <div class="card half">
+            <h2>Voluntary donor opt-in</h2>
+            <p class="muted">Registration stores your blood group and city with your profile. This demo does not share your contact details or send verified requests. You can withdraw consent at any time.</p>
+            <form id="donorForm">
+              <div class="field"><label for="donorCity">City / service area</label><input id="donorCity" maxlength="100" placeholder="Your city" /></div>
+              <div class="field"><label for="donorGroup">Blood group</label><select id="donorGroup"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+              <label class="row"><input id="donorConsent" type="checkbox" /> I voluntarily agree to register as an available donor.</label>
+              <div class="actions"><button class="btn" type="submit">Save donor preference</button><button id="withdrawDonor" class="btn outline" type="button">Withdraw consent</button></div>
+              <p id="donorStatus" class="muted" aria-live="polite"></p>
+            </form>
+            <h3>Received donor alerts</h3>
+            <div id="donorAlerts" class="list" aria-live="polite"><p class="empty">No alerts loaded.</p></div>
+            <div class="notice" style="margin-top:12px">For a blood requirement, contact a licensed blood bank or treating hospital directly. Donor eligibility and availability must be confirmed by professionals.</div>
+          </div>
+          <div class="card half">
+            <h2>Health helpline assistant</h2>
+            <p class="muted">Ask about a medicine by its name for general uses, common side effects, and warnings. This assistant is not a doctor, cannot diagnose, and cannot recommend a personal dose or confirm medicine safety. If it may be an emergency, call your local emergency number now (India: 112 / ambulance 108 where available).</p>
+            <div id="chatMessages" class="list" aria-live="polite"><p class="empty">Ask about a medicine by its name or ask a general health education question. Do not share sensitive identifying details.</p></div>
+            <div class="actions" aria-label="Suggested questions">
+              <button class="btn outline small" type="button" data-chat-prompt="Explain the medicine names found in my uploaded records. Clearly say these are unverified extractions.">Explain my medicine list</button>
+              <button class="btn outline small" type="button" data-chat-prompt="What questions should I ask my doctor or pharmacist about my medicines?">Questions for my pharmacist</button>
+              <button class="btn outline small" type="button" data-chat-prompt="Explain my latest uploaded health report in simple language and tell me what to ask my clinician.">Explain my latest report</button>
+            </div>
+            <form id="chatForm" class="form-grid">
+              <div class="field"><label for="chatMessage">Your question</label><textarea id="chatMessage" maxlength="1500" required rows="3" placeholder="Ask about a medicine or general health topic"></textarea></div>
+              <div class="actions"><button id="chatSend" class="btn" type="submit">Send</button><button id="clearChat" class="btn outline" type="button">Clear conversation</button></div>
+            </form>
+            <p class="source muted">AI responses may be incomplete. Never delay urgent care while chatting.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const languageNames = { en: 'English', ta: 'Tamil', hi: 'Hindi' };
+      const translations = {
+        ta: {
+          'Language':'மொழி','Your Health, Our Priority.':'உங்கள் ஆரோக்கியம், எங்கள் முன்னுரிமை.','START':'தொடங்கு',
+          'Checking your heartbeat...':'உங்கள் இதயத் துடிப்பைச் சரிபார்க்கிறது...','Preparing your secure health space':'உங்கள் பாதுகாப்பான சுகாதாரப் பக்கத்தைத் தயாரிக்கிறது',
+          'Welcome to HEALTHIO':'HEALTHIO-க்கு வரவேற்கிறோம்','Sign in or create your personal profile.':'உள்நுழையவும் அல்லது உங்கள் தனிப்பட்ட சுயவிவரத்தை உருவாக்கவும்.',
+          'Log in':'உள்நுழை','Create account':'கணக்கை உருவாக்கு','Full name':'முழுப் பெயர்','Email':'மின்னஞ்சல்','Password':'கடவுச்சொல்','Show':'காட்டு','Hide':'மறை',
+          'Age (optional)':'வயது (விருப்பம்)','Blood group (optional)':'இரத்த வகை (விருப்பம்)','Forgot password?':'கடவுச்சொல் மறந்துவிட்டதா?',
+          'Prototype sign-in. Passwords are hashed on the server; use a unique password. This app is not a substitute for professional care.':'முன்மாதிரி உள்நுழைவு. கடவுச்சொற்கள் சேவையகத்தில் பாதுகாப்பாக சேமிக்கப்படுகின்றன; தனித்துவமான கடவுச்சொல்லைப் பயன்படுத்தவும். இந்தச் செயலி மருத்துவ நிபுணரின் ஆலோசனைக்கு மாற்றாகாது.',
+          'Home':'முகப்பு','Doctor finder':'மருத்துவரைக் கண்டறிதல்','Schedules & medicine':'அட்டவணைகள் & மருந்துகள்','Emergency':'அவசரம்','Specialist doctors':'சிறப்பு மருத்துவர்கள்','Pregnancy care':'கர்ப்பகால பராமரிப்பு','Blood & helpline':'இரத்ததானம் & உதவி',
+          'Sign out':'வெளியேறு','Your health dashboard':'உங்கள் சுகாதாரப் பலகை','Choose a feature. Information and reminders are personal to your signed-in profile.':'ஒரு அம்சத்தைத் தேர்ந்தெடுக்கவும். தகவலும் நினைவூட்டல்களும் உங்கள் கணக்கிற்குரியவை.',
+          'Search the available directory by specialty and city':'சிறப்பு மற்றும் நகரத்தின் அடிப்படையில் மருத்துவர்களைத் தேடுங்கள்','Tablet & food schedule':'மருந்து & உணவு அட்டவணை',
+          'Manage reminders and look up medicine labels':'நினைவூட்டல்களை நிர்வகித்து மருந்துத் தகவலைத் தேடுங்கள்','Emergency & first aid':'அவசரம் & முதலுதவி',
+          'Safe first-aid guidance and emergency call links':'பாதுகாப்பான முதலுதவி வழிகாட்டலும் அவசர அழைப்பு இணைப்புகளும்','Browse the directory by medical specialty and city':'மருத்துவச் சிறப்பு மற்றும் நகரத்தின் அடிப்படையில் பட்டியலைப் பாருங்கள்',
+          'Voluntary donor opt-in and health education chat':'விருப்ப இரத்ததானப் பதிவு மற்றும் சுகாதாரக் கல்வி உரையாடல்','10-month guide, food, movement, and prescribed medicine reminders':'10 மாத வழிகாட்டி, உணவு, இயக்கம் மற்றும் மருத்துவர் பரிந்துரைத்த மருந்து நினைவூட்டல்கள்','Prototype limitations':'முன்மாதிரியின் வரம்புகள்',
+          'Directory entries are seeded examples, not verified live providers. Notifications require browser permission and the app must remain open. There is no clinical emergency dispatch or verified blood-bank connection.':'பட்டியலில் உள்ளவை எடுத்துக்காட்டு விவரங்கள்; சரிபார்க்கப்பட்ட நேரடி மருத்துவர்கள் அல்ல. அறிவிப்புகளுக்கு உலாவி அனுமதியும் செயலி திறந்திருக்கவும் வேண்டும். அவசர சேவை அனுப்புதல் அல்லது சரிபார்க்கப்பட்ட இரத்த வங்கி இணைப்பு இல்லை.',
+          'Directory entries are sample data from this prototype. Confirm credentials, availability, address, and contact details independently before seeking care.':'மருத்துவர் பட்டியல் எடுத்துக்காட்டு தரவு. சிகிச்சை பெறுவதற்கு முன் தகுதி, நேரம், முகவரி மற்றும் தொடர்பு விவரங்களைத் தனியாகச் சரிபார்க்கவும்.',
+          'Specialty':'மருத்துவச் சிறப்பு','Any specialty':'எந்தச் சிறப்பும்','City':'நகரம்','Search city':'நகரத்தைத் தேடுங்கள்','Search directory':'பட்டியலில் தேடு',
+          'Search the sample directory to see matching entries.':'பொருந்தும் எடுத்துக்காட்டுகளைப் பார்க்க பட்டியலில் தேடுங்கள்.','Tablet & food schedule':'மருந்து & உணவு அட்டவணை',
+          "Add reminders based on your clinician's instructions. This app does not prescribe medicines or change a dose.":'மருத்துவர் வழங்கிய அறிவுறுத்தலின்படி நினைவூட்டல்களைச் சேர்க்கவும். இந்தச் செயலி மருந்துகளைப் பரிந்துரைக்கவோ அளவை மாற்றவோ செய்யாது.',
+          'Add a reminder':'நினைவூட்டலைச் சேர்','Reminder type':'நினைவூட்டல் வகை','Prescribed medicine':'மருத்துவர் பரிந்துரைத்த மருந்து','Meal':'உணவு','Hydration':'தண்ணீர் குடித்தல்',
+          'Name':'பெயர்','Medicine or meal name':'மருந்து அல்லது உணவின் பெயர்','Time':'நேரம்','Notes (optional)':'குறிப்புகள் (விருப்பம்)',
+          'Use only clinician-provided instructions':'மருத்துவர் வழங்கிய அறிவுறுத்தல்களை மட்டும் பயன்படுத்தவும்','Save reminder':'நினைவூட்டலைச் சேமி','Enable notifications':'அறிவிப்புகளை இயக்கு',
+          'Notifications are off until you grant browser permission.':'உலாவி அனுமதி வழங்கும் வரை அறிவிப்புகள் முடக்கப்பட்டிருக்கும்.','Your reminders':'உங்கள் நினைவூட்டல்கள்',
+          'Loading reminders…':'நினைவூட்டல்கள் ஏற்றப்படுகின்றன…','Medical records':'மருத்துவப் பதிவுகள்',
+          'Upload a prescription or report for extraction. AI processing needs an ANTHROPIC_API_KEY; without it, the backend uses a clearly marked demo fallback.':'மருந்துச் சீட்டு அல்லது அறிக்கையைப் பதிவேற்றி தகவலைப் பெறுங்கள். AI செயலாக்கத்திற்கு ANTHROPIC_API_KEY தேவை; அது இல்லையெனில் குறிக்கப்பட்ட மாதிரி மாற்று பயன்படுத்தப்படும்.',
+          'PDF or image':'PDF அல்லது படம்','Upload record':'பதிவைப் பதிவேற்று','Medicine information lookup':'மருந்துத் தகவல் தேடல்',
+          'Medicine name':'மருந்தின் பெயர்','Brand or generic name':'வர்த்தக அல்லது பொதுப் பெயர்','Search official labels':'அதிகாரப்பூர்வ லேபிள்களைத் தேடு','Tablets found in uploaded records':'பதிவேற்றிய பதிவுகளில் கண்ட மாத்திரைகள்',
+          'This is automated text extraction, not a verified prescription. Check the original document and confirm every medicine and instruction with your clinician or pharmacist.':'இது தானியங்கி உரை பிரித்தெடுப்பு மட்டுமே; சரிபார்க்கப்பட்ட மருந்துச் சீட்டு அல்ல. அசல் ஆவணத்தைப் பார்த்து ஒவ்வொரு மருந்தையும் அறிவுறுத்தலையும் மருத்துவர் அல்லது மருந்தாளரிடம் உறுதிப்படுத்துங்கள்.',
+          'Upload a prescription or report to review extracted medicine names.':'பிரித்தெடுக்கப்பட்ட மருந்துப் பெயர்களைப் பார்க்க மருந்துச் சீட்டு அல்லது அறிக்கையைப் பதிவேற்றவும்.',
+          'No medicine names were extracted from uploaded records.':'பதிவேற்றிய ஆவணங்களில் இருந்து மருந்துப் பெயர்கள் எதுவும் பிரித்தெடுக்கப்படவில்லை.',
+          'Extracted dosage:':'பிரித்தெடுக்கப்பட்ட அளவு:','Extracted frequency:':'பிரித்தெடுக்கப்பட்ட பயன்பாட்டு அடிக்கடி:','Extracted times:':'பிரித்தெடுக்கப்பட்ட நேரங்கள்:','Extracted food instruction:':'பிரித்தெடுக்கப்பட்ட உணவு அறிவுறுத்தல்:',
+          'Emergency & first aid':'அவசரம் & முதலுதவி','Life-threatening symptoms?':'உயிருக்கு ஆபத்தான அறிகுறிகளா?',
+          ' For severe chest pain, trouble breathing, unconsciousness, stroke signs, or suspected heart attack, contact emergency services now. Do not wait for this app or chatbot.':' கடுமையான மார்பு வலி, மூச்சுத்திணறல், மயக்கம், பக்கவாத அறிகுறிகள் அல்லது மாரடைப்பு சந்தேகம் இருந்தால் உடனடியாக அவசர சேவையை அழைக்கவும். இந்தச் செயலி அல்லது உரையாடல் உதவிக்காகக் காத்திருக்க வேண்டாம்.',
+          'Call for emergency help':'அவசர உதவிக்கு அழைக்கவும்','Minor cut':'சிறிய வெட்டு','Burn':'தீக்காயம்','Possible stroke':'பக்கவாதம் இருக்கலாம்',
+          'Home first aid while help is coming':'உதவி வரும் வரை வீட்டிலேயே முதலுதவி',
+          'These are basic safety steps, not home treatment. Call emergency services first for severe or worsening symptoms; do not wait for a doctor to arrive through this app.':'இவை அடிப்படை பாதுகாப்பு வழிமுறைகள் மட்டுமே; வீட்டுச் சிகிச்சை அல்ல. கடுமையான அல்லது மோசமடையும் அறிகுறிகளுக்கு முதலில் அவசர சேவையை அழைக்கவும்; இந்தச் செயலி மூலம் மருத்துவர் வருவார் எனக் காத்திருக்க வேண்டாம்.',
+          "Stay with the person, keep them as calm and comfortable as possible, and follow the emergency operator's instructions.":'நோயாளியுடன் இருங்கள்; அவரை அமைதியாகவும் வசதியாகவும் வைத்திருந்து அவசர சேவை இயக்குநரின் அறிவுறுத்தல்களைப் பின்பற்றுங்கள்.',
+          'Unlock the entrance and ask someone to guide responders to the patient. Share the exact address, symptoms, and when they began.':'கதவைத் திறந்து, உதவியாளர்களை நோயாளியிடம் அழைத்துச் செல்ல ஒருவரைக் கேளுங்கள். சரியான முகவரி, அறிகுறிகள் மற்றும் அவை தொடங்கிய நேரத்தைப் பகிருங்கள்.',
+          'If the person is unconscious but breathing normally, place them on their side if there is no suspected neck or back injury. Do not give food, drink, or medicine.':'நபர் மயக்கத்தில் இருந்தாலும் இயல்பாக மூச்சுவிட்டால், கழுத்து அல்லது முதுகுக் காயம் சந்தேகம் இல்லாதபோது அவரைப் பக்கவாட்டில் படுக்கவைக்கவும். உணவு, பானம் அல்லது மருந்து கொடுக்க வேண்டாம்.',
+          'If they are not breathing normally, call emergency services on speakerphone and start CPR only if you know how or the operator guides you.':'அவர் இயல்பாக மூச்சுவிடவில்லை என்றால், ஸ்பீக்கர்போனில் அவசர சேவையை அழைக்கவும்; CPR தெரிந்திருந்தால் அல்லது இயக்குநர் வழிகாட்டினால் மட்டுமே தொடங்குங்கள்.',
+          "Use an emergency medicine only if it was prescribed for that person, and follow its label or their clinician's instructions.":'அந்த நபருக்காகவே பரிந்துரைக்கப்பட்ட அவசர மருந்தை மட்டும் பயன்படுத்தி, அதன் லேபிள் அல்லது மருத்துவரின் அறிவுறுத்தல்களைப் பின்பற்றுங்கள்.',
+          'Doctor home visits are not available through HEALTHIO.':'HEALTHIO மூலம் மருத்துவர் வீட்டுக்கு வருகை தரும் வசதி இல்லை.',
+          'This app cannot dispatch a doctor or promise an immediate home check. Contact your local clinic directly for a home visit; if the condition may be life-threatening, call emergency services now.':'இந்தச் செயலி மருத்துவரை அனுப்பவோ உடனடி வீட்டுப் பரிசோதனையை உறுதி செய்யவோ முடியாது. வீட்டுக்கு மருத்துவர் வர உள்ளூர் மருத்துவமனையை நேரடியாகத் தொடர்புகொள்ளுங்கள்; உயிருக்கு ஆபத்து இருக்கலாம் என்றால் இப்போதே அவசர சேவையை அழைக்கவும்.',
+          'Find specialists':'சிறப்பு மருத்துவர்களைக் கண்டறி','Medical specialty':'மருத்துவச் சிறப்பு','All specialties':'அனைத்து சிறப்புகளும்',
+          'Voluntary donor opt-in':'விருப்ப இரத்ததானப் பதிவு','City / service area':'நகரம் / சேவைப் பகுதி','Your city':'உங்கள் நகரம்',
+          ' I voluntarily agree to register as an available donor.':' இரத்ததானம் செய்யத் தயாராக உள்ளவராகப் பதிவு செய்ய விருப்பத்துடன் ஒப்புக்கொள்கிறேன்.',
+          'Save donor preference':'இரத்ததான விருப்பத்தைச் சேமி','Withdraw consent':'ஒப்புதலைத் திரும்பப் பெறு','Received donor alerts':'பெறப்பட்ட இரத்ததான அறிவிப்புகள்',
+          'Health helpline assistant':'சுகாதார உதவி உரையாடல்','Your question':'உங்கள் கேள்வி','Ask a general question':'பொதுவான கேள்வியைக் கேளுங்கள்','Ask about a medicine or general health topic':'மருந்து அல்லது பொதுவான உடல்நலத் தலைப்பைப் பற்றி கேளுங்கள்','Send':'அனுப்பு','Explain my medicine list':'என் மருந்துப் பட்டியலை விளக்கு','Questions for my pharmacist':'மருந்தாளரிடம் கேட்க வேண்டியவை','Explain my latest report':'என் சமீபத்திய அறிக்கையை விளக்கு','Clear conversation':'உரையாடலை அழி','Suggested questions':'பரிந்துரைக்கப்பட்ட கேள்விகள்',
+          'Explain the medicine names found in my uploaded records. Clearly say these are unverified extractions.':'எனது பதிவேற்றிய ஆவணங்களில் உள்ள மருந்துப் பெயர்களை விளக்குங்கள். இவை சரிபார்க்கப்படாத பிரித்தெடுப்புகள் என்பதைத் தெளிவாகக் கூறுங்கள்.',
+          'What questions should I ask my doctor or pharmacist about my medicines?':'எனது மருந்துகள் குறித்து மருத்துவர் அல்லது மருந்தாளரிடம் என்ன கேள்விகள் கேட்க வேண்டும்?',
+          'Explain my latest uploaded health report in simple language and tell me what to ask my clinician.':'நான் சமீபத்தில் பதிவேற்றிய சுகாதார அறிக்கையை எளிய மொழியில் விளக்கி, மருத்துவரிடம் என்ன கேட்க வேண்டும் என்று சொல்லுங்கள்.',
+          'No alerts loaded.':'அறிவிப்புகள் ஏற்றப்படவில்லை.','No reminders saved yet.':'நினைவூட்டல்கள் எதுவும் சேமிக்கப்படவில்லை.',
+          '10-month guide':'10 மாத வழிகாட்டி','Pregnancy month':'கர்ப்பகால மாதம்','Month':'மாதம்','Month 1':'மாதம் 1','Month 2':'மாதம் 2','Month 3':'மாதம் 3','Month 4':'மாதம் 4','Month 5':'மாதம் 5','Month 6':'மாதம் 6','Month 7':'மாதம் 7','Month 8':'மாதம் 8','Month 9':'மாதம் 9','Month 10':'மாதம் 10','Food and hydration':'உணவு மற்றும் நீரேற்றம்','Movement and exercise':'இயக்கம் மற்றும் உடற்பயிற்சி',
+          'Add a pregnancy reminder':'கர்ப்பகால நினைவூட்டலைச் சேர்','Meal / hydration':'உணவு / நீரேற்றம்','Clinician-approved movement':'மருத்துவர் ஒப்புதல் அளித்த இயக்கம்','Clinician-prescribed tablet':'மருத்துவர் பரிந்துரைத்த மாத்திரை',
+          'Reminder name':'நினைவூட்டல் பெயர்','Optional note':'விருப்பக் குறிப்பு','Use clinician-provided instructions only':'மருத்துவர் வழங்கிய அறிவுறுத்தல்களை மட்டும் பயன்படுத்தவும்','Gentle activity':'மென்மையான இயக்கம்',
+          'Save pregnancy reminder':'கர்ப்பகால நினைவூட்டலைச் சேமி','Your pregnancy reminders will appear here.':'உங்கள் கர்ப்பகால நினைவூட்டல்கள் இங்கே தோன்றும்.',
+          'Weeks':'வாரங்கள்','Approximate weeks':'தோராயமான வாரங்கள்','Not a treatment plan.':'இது சிகிச்சைத் திட்டம் அல்ல.',
+          'This page does not diagnose, prescribe tablets, or recommend doses. Add a medicine reminder only for a medicine your clinician prescribed or specifically approved during pregnancy.':'இந்தப் பக்கம் நோயறிதல் செய்யாது, மாத்திரை அல்லது அளவைப் பரிந்துரைக்காது. கர்ப்பகாலத்தில் மருத்துவர் பரிந்துரைத்த அல்லது குறிப்பாக ஒப்புதல் அளித்த மருந்துக்கு மட்டுமே நினைவூட்டலைச் சேர்க்கவும்.',
+          "A general 40-week guide (10 approximate lunar months). Pregnancy timing and care vary; follow your obstetric clinician's advice and local prenatal schedule.":'பொதுவான 40 வார வழிகாட்டி (தோராயமான 10 சந்திர மாதங்கள்). கர்ப்பகாலமும் பராமரிப்பும் மாறுபடும்; உங்கள் மகப்பேறு மருத்துவரின் ஆலோசனையையும் உள்ளூர் பராமரிப்பு அட்டவணையையும் பின்பற்றவும்.',
+          'Weeks are approximate; use your clinician-confirmed pregnancy dating.':'வாரங்கள் தோராயமானவை; மருத்துவர் உறுதிப்படுத்திய கர்ப்பகாலக் கணக்கைப் பயன்படுத்தவும்.',
+          'Aim for varied, balanced meals and safe food handling. Wash produce; choose thoroughly cooked foods; avoid alcohol. Food guidance differs by country and personal health, so ask your prenatal clinician about your diet and any restrictions.':'பலவகையான சமநிலையான உணவையும் பாதுகாப்பான உணவு கையாளுதலையும் பின்பற்றுங்கள். பழங்கள், காய்கறிகளை கழுவி நன்கு சமைத்த உணவைத் தேர்ந்தெடுத்து மதுவைத் தவிர்க்கவும். உணவு வழிகாட்டுதல் நாடு, உடல்நிலைக்கேற்ப மாறும்; உணவு மற்றும் கட்டுப்பாடுகள் பற்றி மருத்துவரிடம் கேளுங்கள்.',
+          'If your clinician says exercise is suitable for you, gentle activities such as walking may be options. ACOG describes 150 minutes of moderate activity weekly for many uncomplicated pregnancies; this is not a personal target. Ask your clinician before starting or changing exercise.':'உடற்பயிற்சி உங்களுக்கு ஏற்றது என மருத்துவர் கூறினால் நடைப்பயிற்சி போன்ற மென்மையான செயல்களைச் செய்யலாம். சிக்கலற்ற பல கர்ப்பங்களுக்கு வாரத்திற்கு 150 நிமிட மிதமான செயல்பாட்டை ACOG குறிப்பிடுகிறது; இது தனிப்பட்ட இலக்கு அல்ல. உடற்பயிற்சியைத் தொடங்க அல்லது மாற்றுவதற்கு முன் மருத்துவரிடம் கேளுங்கள்.',
+          'Reminders are personal prompts, not medical instructions. For tablets, use the name and timing supplied by your clinician; do not start, stop, or change medicine based on this app.':'நினைவூட்டல்கள் தனிப்பட்ட நினைவூட்டல்கள் மட்டுமே; மருத்துவ அறிவுறுத்தல்கள் அல்ல. மாத்திரைக்கு மருத்துவர் கொடுத்த பெயர், நேரத்தைப் பயன்படுத்தவும்; இந்தச் செயலியின் அடிப்படையில் மருந்தைத் தொடங்கவோ நிறுத்தவோ மாற்றவோ வேண்டாம்.',
+          'For severe symptoms, heavy bleeding, severe abdominal pain, difficulty breathing, fainting, or any urgent concern, contact your local emergency service or maternity unit now. Do not wait for this app.':'கடுமையான அறிகுறிகள், அதிக இரத்தப்போக்கு, கடுமையான வயிற்றுவலி, மூச்சுத்திணறல், மயக்கம் அல்லது அவசரக் கவலை இருந்தால் உடனே உள்ளூர் அவசர சேவை அல்லது மகப்பேறு பிரிவைத் தொடர்புகொள்ளுங்கள். இந்தச் செயலிக்காகக் காத்திருக்க வேண்டாம்.',
+          'Pregnancy reminder saved.':'கர்ப்பகால நினைவூட்டல் சேமிக்கப்பட்டது.',
+          'Loading directory…':'மருத்துவர் பட்டியல் ஏற்றப்படுகிறது…','No directory entries match. Try another search.':'பொருந்தும் விவரங்கள் இல்லை. வேறு தேடலை முயற்சிக்கவும்.',
+          'Directory entry':'பட்டியல் பதிவு','Sample directory entry; verify details independently.':'எடுத்துக்காட்டு பதிவு; விவரங்களைத் தனியாகச் சரிபார்க்கவும்.',
+          'Contact':'தொடர்பு','Map':'வரைபடம்','Done':'முடிந்தது','Edit':'திருத்து','Delete':'நீக்கு','Reminder':'நினைவூட்டல்',
+          'General use':'பொதுப் பயன்பாடு','Warnings / precautions':'எச்சரிக்கைகள் / முன்னெச்சரிக்கைகள்','Label-listed adverse reactions':'லேபிளில் குறிப்பிடப்பட்ட பக்கவிளைவுகள்',
+          'Ask a general health education question. Do not share sensitive identifying details.':'பொதுவான சுகாதாரக் கல்விக் கேள்வியைக் கேளுங்கள். முக்கியமான அடையாள விவரங்களைப் பகிர வேண்டாம்.',
+          'AI responses may be incomplete. Never delay urgent care while chatting.':'AI பதில்கள் முழுமையற்றதாக இருக்கலாம். உரையாடும்போது அவசர சிகிச்சையைத் தாமதிக்க வேண்டாம்.',
+          'Searches FDA drug-label data. Information may not match local brands or your personal circumstances. Ask a doctor or pharmacist about allergies, interactions, and treatment decisions.':'FDA மருந்து லேபிள் தரவைத் தேடுகிறது. இது உள்ளூர் பிராண்டுகள் அல்லது உங்கள் உடல்நிலைக்கு பொருந்தாமல் இருக்கலாம். ஒவ்வாமை, மருந்து இடைவினைகள் மற்றும் சிகிச்சை முடிவுகள் குறித்து மருத்துவர் அல்லது மருந்தாளரிடம் கேளுங்கள்.',
+          'Source:':'ஆதாரம்:',' Labels are not a substitute for clinical advice.':' லேபிள்கள் மருத்துவ ஆலோசனைக்கு மாற்றாகாது.',
+          'If you are in India, call 112 for emergency assistance or 108 for ambulance service where available. Elsewhere, call your local emergency number.':'இந்தியாவில் அவசர உதவிக்கு 112-ஐ அழைக்கவும்; கிடைக்கும் இடங்களில் ஆம்புலன்ஸுக்கு 108-ஐ அழைக்கவும். பிற இடங்களில் உள்ளூர் அவசர எண்ணை அழைக்கவும்.',
+          'Call 112 (India)':'112-ஐ அழைக்கவும் (இந்தியா)','Call 108 (ambulance, India)':'108-ஐ அழைக்கவும் (ஆம்புலன்ஸ், இந்தியா)',
+          'Basic first-aid education only. It is not a diagnosis or a replacement for emergency care. Guidance:':'அடிப்படை முதலுதவி கல்வி மட்டுமே. இது நோயறிதலோ அவசர சிகிச்சைக்கு மாற்றோ அல்ல. வழிகாட்டுதல்:',
+          'For a blood requirement, contact a licensed blood bank or treating hospital directly. Donor eligibility and availability must be confirmed by professionals.':'இரத்தம் தேவைப்பட்டால் உரிமம் பெற்ற இரத்த வங்கி அல்லது சிகிச்சை அளிக்கும் மருத்துவமனையை நேரடியாகத் தொடர்புகொள்ளவும். தகுதியையும் கிடைப்பதையும் நிபுணர்கள் உறுதிப்படுத்த வேண்டும்.',
+          'General health education only; not a doctor and cannot diagnose. If it may be an emergency, call your local emergency number now (India: 112 / ambulance 108 where available).':'பொதுவான சுகாதாரக் கல்வி மட்டுமே; இது மருத்துவர் அல்ல, நோயறிதல் செய்யாது. அவசரநிலை இருக்கலாம் எனில் உள்ளூர் அவசர எண்ணை உடனே அழைக்கவும் (இந்தியா: 112 / கிடைக்கும் இடங்களில் ஆம்புலன்ஸ் 108).',
+          'Apply steady pressure with clean cloth or gauze. Once bleeding is controlled, rinse with clean running water and cover. Seek urgent care for heavy or uncontrolled bleeding or a deep wound.':'சுத்தமான துணி அல்லது காஸை வைத்து தொடர்ந்து அழுத்தம் கொடுக்கவும். இரத்தப்போக்கு கட்டுப்பட்டதும் சுத்தமான ஓடும் நீரில் கழுவி மூடவும். அதிகமான அல்லது நிற்காத இரத்தப்போக்கு, ஆழமான காயம் இருந்தால் உடனடி மருத்துவ உதவி பெறவும்.',
+          'Cool a small thermal burn under cool running water for 20 minutes. Do not apply ice, butter, or creams. Seek urgent care for large, deep, chemical, electrical, face, or airway burns.':'சிறிய வெப்பத் தீக்காயத்தை 20 நிமிடங்கள் குளிர்ந்த ஓடும் நீரில் வைக்கவும். பனி, வெண்ணெய் அல்லது கிரீம் பூச வேண்டாம். பெரிய, ஆழமான, இரசாயன, மின்சார, முகம் அல்லது சுவாசப்பாதை தீக்காயங்களுக்கு உடனடி மருத்துவ உதவி பெறவும்.',
+          'Note when symptoms started and call emergency services immediately for face drooping, arm weakness, or speech difficulty. Do not give food, drink, or medication.':'அறிகுறிகள் தொடங்கிய நேரத்தைக் குறித்துக் கொள்ளுங்கள். முகம் சாய்தல், கை பலவீனம் அல்லது பேச்சுச் சிரமம் இருந்தால் உடனே அவசர சேவையை அழைக்கவும். உணவு, பானம் அல்லது மருந்து கொடுக்க வேண்டாம்.',
+          'Cardiology':'இதயவியல்','Neurology':'நரம்பியல்','Pediatrics':'குழந்தை மருத்துவம்','General Medicine':'பொது மருத்துவம்','Orthopedics':'எலும்பியல்','Psychology':'உளவியல்',
+          'Holistic well-being and emotional counseling':'முழுமையான நல்வாழ்வு மற்றும் உணர்ச்சி ஆலோசனை','Interventional Cardiologist':'இடைமுறை இதயநோய் நிபுணர்','Neurology Department':'நரம்பியல் துறை',
+          'Qualifications as supplied:':'வழங்கப்பட்ட தகுதிகள்:','Map search':'வரைபடத்தில் தேடு',
+          'User-provided listing; details, credentials, affiliation, location, and availability are not independently verified.':'பயனர் வழங்கிய பட்டியல்; விவரங்கள், தகுதிகள், இணைப்பு, இடம் மற்றும் கிடைக்கும் நேரம் தனியாகச் சரிபார்க்கப்படவில்லை.',
+          'Sample directory entry; verify details independently.':'மாதிரி பட்டியல் பதிவு; விவரங்களைத் தனியாகச் சரிபார்க்கவும்.',
+          'The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Notifications require browser permission and the app must remain open. There is no clinical emergency dispatch or verified blood-bank connection.':'மருத்துவர் பட்டியலில் மாதிரி மற்றும் பயனர் வழங்கிய பதிவுகள் உள்ளன; மருத்துவர்கள், தகுதிகள் அல்லது கிடைக்கும் நேரத்தை HEALTHIO தனியாகச் சரிபார்க்கவில்லை. அறிவிப்புகளுக்கு உலாவி அனுமதியும் செயலி திறந்திருக்கவும் வேண்டும். அவசர மருத்துவர் அனுப்புதல் அல்லது சரிபார்க்கப்பட்ட இரத்த வங்கி இணைப்பு இல்லை.',
+          'The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Confirm details directly with the provider before seeking care.':'மருத்துவர் பட்டியலில் மாதிரி மற்றும் பயனர் வழங்கிய பதிவுகள் உள்ளன; மருத்துவர்கள், தகுதிகள் அல்லது கிடைக்கும் நேரத்தை HEALTHIO தனியாகச் சரிபார்க்கவில்லை. சிகிச்சை பெறுவதற்கு முன் வழங்குநரிடம் விவரங்களை நேரடியாக உறுதிப்படுத்துங்கள்.',
+          'Browse sample and user-provided directory listings by specialty and city. HEALTHIO has not independently verified providers, credentials, affiliations, or availability; confirm details directly before seeking care.':'சிறப்பு மற்றும் நகரத்தின் அடிப்படையில் மாதிரி மற்றும் பயனர் வழங்கிய பட்டியல்களைப் பாருங்கள். மருத்துவர்கள், தகுதிகள், இணைப்புகள் அல்லது கிடைக்கும் நேரத்தை HEALTHIO தனியாகச் சரிபார்க்கவில்லை; சிகிச்சை பெறுவதற்கு முன் நேரடியாக உறுதிப்படுத்துங்கள்.',
+          'Choose a specialty or city to search the directory.':'பட்டியலைத் தேட ஒரு சிறப்பையோ நகரத்தையோ தேர்ந்தெடுக்கவும்.',
+          'Password recovery is not configured in this prototype. Contact the service administrator.':'இந்த முன்மாதிரியில் கடவுச்சொல் மீட்பு அமைக்கப்படவில்லை. சேவை நிர்வாகியைத் தொடர்புகொள்ளவும்.',
+          'Please wait…':'காத்திருக்கவும்…','You have signed out.':'நீங்கள் வெளியேறிவிட்டீர்கள்.','Reminder marked done.':'நினைவூட்டல் முடிந்ததாகக் குறிக்கப்பட்டது.',
+          'Reminder updated.':'நினைவூட்டல் புதுப்பிக்கப்பட்டது.','Reminder deleted.':'நினைவூட்டல் நீக்கப்பட்டது.','Reminder saved.':'நினைவூட்டல் சேமிக்கப்பட்டது.',
+          'This browser does not support notifications.':'இந்த உலாவி அறிவிப்புகளை ஆதரிக்காது.','Permission enabled. Browser notifications require the app to remain open.':'அனுமதி வழங்கப்பட்டது. உலாவி அறிவிப்புகளுக்கு செயலி திறந்திருக்க வேண்டும்.',
+          'Permission was not granted. Reminders remain available in this page.':'அனுமதி வழங்கப்படவில்லை. இந்தப் பக்கத்தில் நினைவூட்டல்களைப் பார்க்கலாம்.',
+          'Record uploaded. Review extracted information with your clinician.':'பதிவு பதிவேற்றப்பட்டது. எடுக்கப்பட்ட தகவலை மருத்துவருடன் சரிபார்க்கவும்.',
+          'Browse available directory entries by specialty and city. These are sample entries, not verified live providers. Confirm credentials, availability, address, and contact details independently.':'சிறப்பு மற்றும் நகரத்தின் அடிப்படையில் பட்டியல் பதிவுகளைப் பாருங்கள். இவை எடுத்துக்காட்டுகள்; சரிபார்க்கப்பட்ட நேரடி மருத்துவர்கள் அல்ல. தகுதி, நேரம், முகவரி மற்றும் தொடர்பு விவரங்களைத் தனியாக உறுதிப்படுத்துங்கள்.',
+          'Directory entries are sample data from this prototype. Confirm credentials, availability, address, and contact details independently before seeking care.':'மருத்துவர் பட்டியல் இந்த முன்மாதிரியின் எடுத்துக்காட்டு தரவு. சிகிச்சை பெறுவதற்கு முன் தகுதி, நேரம், முகவரி மற்றும் தொடர்பு விவரங்களைத் தனியாக உறுதிப்படுத்துங்கள்.',
+          "Add reminders based on your clinician's instructions. This app does not prescribe medicines or change a dose.":'மருத்துவர் வழங்கிய அறிவுறுத்தலின்படி நினைவூட்டல்களைச் சேர்க்கவும். இந்தச் செயலி மருந்துகளைப் பரிந்துரைக்கவோ அளவை மாற்றவோ செய்யாது.',
+          'Registration stores your blood group and city with your profile. This demo does not share your contact details or send verified requests. You can withdraw consent at any time.':'உங்கள் இரத்த வகையும் நகரமும் சுயவிவரத்தில் சேமிக்கப்படும். இந்த மாதிரி உங்கள் தொடர்பு விவரங்களைப் பகிராது அல்லது சரிபார்க்கப்பட்ட கோரிக்கைகளை அனுப்பாது. எந்த நேரத்திலும் ஒப்புதலைத் திரும்பப் பெறலாம்.',
+          'Life-threatening symptoms?':'உயிருக்கு ஆபத்தான அறிகுறிகளா?',
+          'Show password':'கடவுச்சொல்லைக் காட்டு','Hide password':'கடவுச்சொல்லை மறை','Healthcare features':'சுகாதார அம்சங்கள்',
+          'Animated 3D-style heart':'அசையும் 3D இதயம்','Animated ECG illustration':'அசையும் ECG விளக்கம்',
+          'Enter your name and a password with at least 8 characters.':'உங்கள் பெயரையும் குறைந்தது 8 எழுத்துகள் கொண்ட கடவுச்சொல்லையும் உள்ளிடவும்.',
+          'Enter your email and password.':'உங்கள் மின்னஞ்சலையும் கடவுச்சொல்லையும் உள்ளிடவும்.',
+          'Assistant is responding…':'உதவியாளர் பதிலளிக்கிறார்…','Health education assistant':'சுகாதாரக் கல்வி உதவியாளர்',
+        },
+        hi: {
+          'Language':'भाषा','Your Health, Our Priority.':'आपका स्वास्थ्य, हमारी प्राथमिकता।','START':'शुरू करें',
+          'Checking your heartbeat...':'आपकी दिल की धड़कन जाँची जा रही है...','Preparing your secure health space':'आपका सुरक्षित स्वास्थ्य पृष्ठ तैयार हो रहा है',
+          'Welcome to HEALTHIO':'HEALTHIO में आपका स्वागत है','Sign in or create your personal profile.':'साइन इन करें या अपनी व्यक्तिगत प्रोफ़ाइल बनाएँ।',
+          'Log in':'लॉग इन','Create account':'खाता बनाएँ','Full name':'पूरा नाम','Email':'ईमेल','Password':'पासवर्ड','Show':'दिखाएँ','Hide':'छिपाएँ',
+          'Age (optional)':'आयु (वैकल्पिक)','Blood group (optional)':'रक्त समूह (वैकल्पिक)','Forgot password?':'पासवर्ड भूल गए?',
+          'Prototype sign-in. Passwords are hashed on the server; use a unique password. This app is not a substitute for professional care.':'यह साइन-इन प्रोटोटाइप है। पासवर्ड सर्वर पर सुरक्षित रूप में रखे जाते हैं; अलग पासवर्ड इस्तेमाल करें। यह ऐप चिकित्सकीय देखभाल का विकल्प नहीं है।',
+          'Home':'होम','Doctor finder':'डॉक्टर खोजें','Schedules & medicine':'रिमाइंडर और दवा','Emergency':'आपातकाल','Specialist doctors':'विशेषज्ञ डॉक्टर','Pregnancy care':'गर्भावस्था देखभाल','Blood & helpline':'रक्तदान और हेल्पलाइन',
+          'Sign out':'साइन आउट','Your health dashboard':'आपका स्वास्थ्य डैशबोर्ड','Choose a feature. Information and reminders are personal to your signed-in profile.':'कोई सुविधा चुनें। जानकारी और रिमाइंडर आपके साइन-इन प्रोफ़ाइल के लिए हैं।',
+          'Search the available directory by specialty and city':'विशेषता और शहर के अनुसार डॉक्टर खोजें','Tablet & food schedule':'दवा और भोजन का रिमाइंडर',
+          'Manage reminders and look up medicine labels':'रिमाइंडर प्रबंधित करें और दवा की जानकारी खोजें','Emergency & first aid':'आपातकाल और प्राथमिक उपचार',
+          'Safe first-aid guidance and emergency call links':'सुरक्षित प्राथमिक उपचार मार्गदर्शन और आपातकालीन कॉल लिंक','Browse the directory by medical specialty and city':'चिकित्सा विशेषज्ञता और शहर के अनुसार सूची देखें',
+          'Voluntary donor opt-in and health education chat':'स्वैच्छिक रक्तदाता पंजीकरण और स्वास्थ्य जानकारी चैट','10-month guide, food, movement, and prescribed medicine reminders':'10 महीने की जानकारी, भोजन, गतिविधि और डॉक्टर द्वारा बताई दवा के रिमाइंडर','Prototype limitations':'प्रोटोटाइप की सीमाएँ',
+          'Directory entries are seeded examples, not verified live providers. Notifications require browser permission and the app must remain open. There is no clinical emergency dispatch or verified blood-bank connection.':'सूची के नाम उदाहरण हैं, सत्यापित सक्रिय सेवा प्रदाता नहीं। सूचनाओं के लिए ब्राउज़र अनुमति और ऐप खुला रहना आवश्यक है। आपातकालीन सहायता भेजने या सत्यापित ब्लड बैंक से जुड़ने की सुविधा उपलब्ध नहीं है।',
+          'Directory entries are sample data from this prototype. Confirm credentials, availability, address, and contact details independently before seeking care.':'डॉक्टरों की सूची इस प्रोटोटाइप का नमूना डेटा है। इलाज लेने से पहले योग्यता, उपलब्धता, पता और संपर्क विवरण स्वयं सत्यापित करें।',
+          '10-month guide':'10 महीने की जानकारी','Pregnancy month':'गर्भावस्था का महीना','Month':'महीना','Month 1':'महीना 1','Month 2':'महीना 2','Month 3':'महीना 3','Month 4':'महीना 4','Month 5':'महीना 5','Month 6':'महीना 6','Month 7':'महीना 7','Month 8':'महीना 8','Month 9':'महीना 9','Month 10':'महीना 10','Food and hydration':'भोजन और पानी','Movement and exercise':'गतिविधि और व्यायाम',
+          'Add a pregnancy reminder':'गर्भावस्था रिमाइंडर जोड़ें','Meal / hydration':'भोजन / पानी','Clinician-approved movement':'डॉक्टर द्वारा अनुमोदित गतिविधि','Clinician-prescribed tablet':'डॉक्टर द्वारा बताई गोली',
+          'Reminder name':'रिमाइंडर का नाम','Optional note':'वैकल्पिक नोट','Use clinician-provided instructions only':'केवल डॉक्टर के निर्देश इस्तेमाल करें','Gentle activity':'हल्की गतिविधि',
+          'Save pregnancy reminder':'गर्भावस्था रिमाइंडर सेव करें','Your pregnancy reminders will appear here.':'आपके गर्भावस्था रिमाइंडर यहाँ दिखेंगे।',
+          'Weeks':'सप्ताह','Approximate weeks':'अनुमानित सप्ताह','Not a treatment plan.':'यह उपचार योजना नहीं है।',
+          'This page does not diagnose, prescribe tablets, or recommend doses. Add a medicine reminder only for a medicine your clinician prescribed or specifically approved during pregnancy.':'यह पृष्ठ बीमारी का निदान, गोली या खुराक की सलाह नहीं देता। केवल उसी दवा का रिमाइंडर जोड़ें जिसे आपके डॉक्टर ने गर्भावस्था में लिखा या विशेष रूप से मंज़ूर किया है।',
+          "A general 40-week guide (10 approximate lunar months). Pregnancy timing and care vary; follow your obstetric clinician's advice and local prenatal schedule.":'यह 40 सप्ताह की सामान्य जानकारी है (लगभग 10 चंद्र महीने)। गर्भावस्था और देखभाल अलग-अलग होती है; अपने प्रसूति चिकित्सक की सलाह और स्थानीय जाँच कार्यक्रम का पालन करें।',
+          'Weeks are approximate; use your clinician-confirmed pregnancy dating.':'सप्ताह अनुमानित हैं; डॉक्टर द्वारा पुष्टि की गई गर्भावस्था अवधि का उपयोग करें।',
+          'Aim for varied, balanced meals and safe food handling. Wash produce; choose thoroughly cooked foods; avoid alcohol. Food guidance differs by country and personal health, so ask your prenatal clinician about your diet and any restrictions.':'संतुलित और विविध भोजन तथा सुरक्षित भोजन प्रबंधन अपनाएँ। फल-सब्जियाँ धोएँ, भोजन अच्छी तरह पकाकर खाएँ और शराब से बचें। भोजन संबंधी सलाह देश और स्वास्थ्य के अनुसार बदलती है; अपने डॉक्टर से आहार और पाबंदियों के बारे में पूछें।',
+          'If your clinician says exercise is suitable for you, gentle activities such as walking may be options. ACOG describes 150 minutes of moderate activity weekly for many uncomplicated pregnancies; this is not a personal target. Ask your clinician before starting or changing exercise.':'यदि डॉक्टर व्यायाम को आपके लिए सुरक्षित बताते हैं, तो चलने जैसी हल्की गतिविधि विकल्प हो सकती है। ACOG कई बिना जटिलता वाली गर्भावस्थाओं में प्रति सप्ताह 150 मिनट की मध्यम गतिविधि बताता है; यह आपका निजी लक्ष्य नहीं है। व्यायाम शुरू या बदलने से पहले डॉक्टर से पूछें।',
+          'Reminders are personal prompts, not medical instructions. For tablets, use the name and timing supplied by your clinician; do not start, stop, or change medicine based on this app.':'रिमाइंडर केवल व्यक्तिगत याद दिलाने के लिए हैं, चिकित्सकीय निर्देश नहीं। गोली के लिए डॉक्टर द्वारा दिया गया नाम और समय भरें; इस ऐप के आधार पर दवा शुरू, बंद या न बदलें।',
+          'For severe symptoms, heavy bleeding, severe abdominal pain, difficulty breathing, fainting, or any urgent concern, contact your local emergency service or maternity unit now. Do not wait for this app.':'गंभीर लक्षण, अधिक रक्तस्राव, तेज पेट दर्द, साँस लेने में कठिनाई, बेहोशी या किसी भी आपात चिंता पर तुरंत स्थानीय आपात सेवा या प्रसूति विभाग से संपर्क करें। इस ऐप का इंतज़ार न करें।',
+          'Pregnancy reminder saved.':'गर्भावस्था रिमाइंडर सेव हो गया।',
+          'Specialty':'विशेषता','Any specialty':'कोई भी विशेषता','City':'शहर','Search city':'शहर खोजें','Search directory':'सूची खोजें',
+          'Search the sample directory to see matching entries.':'मिलते-जुलते नमूने देखने के लिए सूची खोजें।','Tablet & food schedule':'दवा और भोजन का रिमाइंडर',
+          "Add reminders based on your clinician's instructions. This app does not prescribe medicines or change a dose.":'अपने डॉक्टर के निर्देशों के अनुसार रिमाइंडर जोड़ें। यह ऐप दवा नहीं बताता और खुराक नहीं बदलता।',
+          'Add a reminder':'रिमाइंडर जोड़ें','Reminder type':'रिमाइंडर का प्रकार','Prescribed medicine':'डॉक्टर द्वारा बताई दवा','Meal':'भोजन','Hydration':'पानी पीना',
+          'Name':'नाम','Medicine or meal name':'दवा या भोजन का नाम','Time':'समय','Notes (optional)':'नोट (वैकल्पिक)',
+          'Use only clinician-provided instructions':'केवल डॉक्टर के निर्देशों का उपयोग करें','Save reminder':'रिमाइंडर सहेजें','Enable notifications':'सूचनाएँ चालू करें',
+          'Notifications are off until you grant browser permission.':'ब्राउज़र की अनुमति मिलने तक सूचनाएँ बंद हैं।','Your reminders':'आपके रिमाइंडर',
+          'Loading reminders…':'रिमाइंडर लोड हो रहे हैं…','Medical records':'चिकित्सकीय रिकॉर्ड',
+          'Upload a prescription or report for extraction. AI processing needs an ANTHROPIC_API_KEY; without it, the backend uses a clearly marked demo fallback.':'जानकारी निकालने के लिए पर्चा या रिपोर्ट अपलोड करें। AI के लिए ANTHROPIC_API_KEY आवश्यक है; इसके बिना स्पष्ट रूप से चिह्नित डेमो विकल्प चलेगा।',
+          'PDF or image':'PDF या छवि','Upload record':'रिकॉर्ड अपलोड करें','Medicine information lookup':'दवा की जानकारी खोजें',
+          'Medicine name':'दवा का नाम','Brand or generic name':'ब्रांड या जेनेरिक नाम','Search official labels':'आधिकारिक लेबल खोजें','Tablets found in uploaded records':'अपलोड किए गए रिकॉर्ड में मिली दवाएँ',
+          'This is automated text extraction, not a verified prescription. Check the original document and confirm every medicine and instruction with your clinician or pharmacist.':'यह स्वचालित पाठ निष्कर्षण है, सत्यापित नुस्खा नहीं। मूल दस्तावेज़ देखें और हर दवा व निर्देश डॉक्टर या फार्मासिस्ट से पक्का करें।',
+          'Upload a prescription or report to review extracted medicine names.':'निकाले गए दवा नाम देखने के लिए नुस्खा या रिपोर्ट अपलोड करें।',
+          'No medicine names were extracted from uploaded records.':'अपलोड किए गए रिकॉर्ड से दवा के नाम नहीं निकले।',
+          'Extracted dosage:':'निकाली गई खुराक:','Extracted frequency:':'निकाली गई आवृत्ति:','Extracted times:':'निकाले गए समय:','Extracted food instruction:':'निकाला गया भोजन निर्देश:',
+          'Emergency & first aid':'आपातकाल और प्राथमिक उपचार','Life-threatening symptoms?':'क्या जानलेवा लक्षण हैं?',
+          ' For severe chest pain, trouble breathing, unconsciousness, stroke signs, or suspected heart attack, contact emergency services now. Do not wait for this app or chatbot.':' तेज़ सीने में दर्द, साँस लेने में कठिनाई, बेहोशी, स्ट्रोक के लक्षण या दिल का दौरा पड़ने की आशंका हो तो तुरंत आपातकालीन सेवा से संपर्क करें। ऐप या चैटबॉट का इंतज़ार न करें।',
+          'Call for emergency help':'आपातकालीन सहायता के लिए कॉल करें','Minor cut':'छोटा कट','Burn':'जलना','Possible stroke':'संभावित स्ट्रोक',
+          'Home first aid while help is coming':'मदद आने तक घर पर प्राथमिक उपचार',
+          'These are basic safety steps, not home treatment. Call emergency services first for severe or worsening symptoms; do not wait for a doctor to arrive through this app.':'ये बुनियादी सुरक्षा कदम हैं, घर पर इलाज नहीं। गंभीर या बिगड़ते लक्षणों में पहले आपातकालीन सेवा को कॉल करें; इस ऐप से डॉक्टर आने का इंतज़ार न करें।',
+          "Stay with the person, keep them as calm and comfortable as possible, and follow the emergency operator's instructions.":'व्यक्ति के साथ रहें, उन्हें यथासंभव शांत और आरामदायक रखें, और आपातकालीन ऑपरेटर के निर्देश मानें।',
+          'Unlock the entrance and ask someone to guide responders to the patient. Share the exact address, symptoms, and when they began.':'प्रवेश द्वार खोलें और किसी से सहायता दल को मरीज़ तक पहुँचाने को कहें। सटीक पता, लक्षण और उनके शुरू होने का समय बताएँ।',
+          'If the person is unconscious but breathing normally, place them on their side if there is no suspected neck or back injury. Do not give food, drink, or medicine.':'यदि व्यक्ति बेहोश है लेकिन सामान्य रूप से साँस ले रहा है, तो गर्दन या पीठ की चोट का संदेह न होने पर उसे करवट पर लिटाएँ। खाना, पेय या दवा न दें।',
+          'If they are not breathing normally, call emergency services on speakerphone and start CPR only if you know how or the operator guides you.':'यदि वे सामान्य रूप से साँस नहीं ले रहे हैं, तो स्पीकरफ़ोन पर आपात सेवा को कॉल करें। CPR केवल तभी शुरू करें जब आपको आता हो या ऑपरेटर मार्गदर्शन दे।',
+          "Use an emergency medicine only if it was prescribed for that person, and follow its label or their clinician's instructions.":'आपातकालीन दवा केवल तभी दें जब वह उसी व्यक्ति के लिए निर्धारित हो; लेबल या डॉक्टर के निर्देशों का पालन करें।',
+          'Doctor home visits are not available through HEALTHIO.':'HEALTHIO के माध्यम से डॉक्टर की घर-भेंट उपलब्ध नहीं है।',
+          'This app cannot dispatch a doctor or promise an immediate home check. Contact your local clinic directly for a home visit; if the condition may be life-threatening, call emergency services now.':'यह ऐप डॉक्टर नहीं भेज सकता और तुरंत घर पर जाँच की गारंटी नहीं दे सकता। घर पर जाँच के लिए अपने स्थानीय क्लिनिक से सीधे संपर्क करें; जानलेवा स्थिति हो सकती है तो अभी आपात सेवा को कॉल करें।',
+          'Find specialists':'विशेषज्ञ खोजें','Medical specialty':'चिकित्सा विशेषज्ञता','All specialties':'सभी विशेषज्ञताएँ',
+          'Voluntary donor opt-in':'स्वैच्छिक रक्तदाता पंजीकरण','City / service area':'शहर / सेवा क्षेत्र','Your city':'आपका शहर',
+          ' I voluntarily agree to register as an available donor.':' मैं उपलब्ध रक्तदाता के रूप में स्वेच्छा से पंजीकरण करने के लिए सहमत हूँ।',
+          'Save donor preference':'रक्तदाता की पसंद सहेजें','Withdraw consent':'सहमति वापस लें','Received donor alerts':'प्राप्त रक्तदाता सूचनाएँ',
+          'Health helpline assistant':'स्वास्थ्य हेल्पलाइन सहायक','Your question':'आपका प्रश्न','Ask a general question':'सामान्य प्रश्न पूछें','Ask about a medicine or general health topic':'किसी दवा या सामान्य स्वास्थ्य विषय के बारे में पूछें','Send':'भेजें','Explain my medicine list':'मेरी दवा सूची समझाएँ','Questions for my pharmacist':'फार्मासिस्ट से पूछने के प्रश्न','Explain my latest report':'मेरी नवीनतम रिपोर्ट समझाएँ','Clear conversation':'बातचीत साफ़ करें','Suggested questions':'सुझाए गए प्रश्न',
+          'Explain the medicine names found in my uploaded records. Clearly say these are unverified extractions.':'मेरे अपलोड किए गए रिकॉर्ड में मिली दवाओं के नाम समझाएँ। स्पष्ट करें कि ये अप्रमाणित निष्कर्षण हैं।',
+          'What questions should I ask my doctor or pharmacist about my medicines?':'अपनी दवाओं के बारे में डॉक्टर या फार्मासिस्ट से कौन-से प्रश्न पूछूँ?',
+          'Explain my latest uploaded health report in simple language and tell me what to ask my clinician.':'मेरी नवीनतम अपलोड की गई स्वास्थ्य रिपोर्ट सरल भाषा में समझाएँ और बताएँ कि डॉक्टर से क्या पूछूँ।',
+          'No alerts loaded.':'कोई सूचना लोड नहीं हुई।','No reminders saved yet.':'अभी कोई रिमाइंडर सहेजा नहीं गया।',
+          'Loading directory…':'डॉक्टरों की सूची लोड हो रही है…','No directory entries match. Try another search.':'कोई मेल खाता विवरण नहीं मिला। दूसरी खोज आज़माएँ।',
+          'Directory entry':'सूची का विवरण','Sample directory entry; verify details independently.':'नमूना विवरण; जानकारी स्वयं सत्यापित करें।',
+          'Contact':'संपर्क करें','Map':'मानचित्र','Done':'पूरा','Edit':'संपादित करें','Delete':'हटाएँ','Reminder':'रिमाइंडर',
+          'General use':'सामान्य उपयोग','Warnings / precautions':'चेतावनियाँ / सावधानियाँ','Label-listed adverse reactions':'लेबल में बताए गए दुष्प्रभाव',
+          'Ask a general health education question. Do not share sensitive identifying details.':'स्वास्थ्य संबंधी सामान्य जानकारी पूछें। संवेदनशील पहचान विवरण साझा न करें।',
+          'AI responses may be incomplete. Never delay urgent care while chatting.':'AI के जवाब अधूरे हो सकते हैं। चैट करते समय तत्काल चिकित्सा सहायता में देरी न करें।',
+          'Searches FDA drug-label data. Information may not match local brands or your personal circumstances. Ask a doctor or pharmacist about allergies, interactions, and treatment decisions.':'FDA दवा-लेबल डेटा खोजता है। यह स्थानीय ब्रांड या आपकी व्यक्तिगत स्थिति से मेल न खा सकता है। एलर्जी, दवाओं के परस्पर प्रभाव और इलाज के फैसलों के लिए डॉक्टर या फार्मासिस्ट से पूछें।',
+          'Source:':'स्रोत:',' Labels are not a substitute for clinical advice.':' लेबल चिकित्सकीय सलाह का विकल्प नहीं हैं।',
+          'If you are in India, call 112 for emergency assistance or 108 for ambulance service where available. Elsewhere, call your local emergency number.':'भारत में आपात सहायता के लिए 112 पर कॉल करें; जहाँ उपलब्ध हो वहाँ एम्बुलेंस के लिए 108 पर कॉल करें। अन्य जगह अपने स्थानीय आपात नंबर पर कॉल करें।',
+          'Call 112 (India)':'112 पर कॉल करें (भारत)','Call 108 (ambulance, India)':'108 पर कॉल करें (एम्बुलेंस, भारत)',
+          'Basic first-aid education only. It is not a diagnosis or a replacement for emergency care. Guidance:':'केवल प्राथमिक उपचार की सामान्य जानकारी। यह निदान या आपात चिकित्सा का विकल्प नहीं है। मार्गदर्शन:',
+          'For a blood requirement, contact a licensed blood bank or treating hospital directly. Donor eligibility and availability must be confirmed by professionals.':'रक्त की आवश्यकता होने पर लाइसेंस प्राप्त ब्लड बैंक या इलाज कर रहे अस्पताल से सीधे संपर्क करें। रक्तदाता की पात्रता और उपलब्धता की पुष्टि विशेषज्ञों से करें।',
+          'General health education only; not a doctor and cannot diagnose. If it may be an emergency, call your local emergency number now (India: 112 / ambulance 108 where available).':'केवल सामान्य स्वास्थ्य जानकारी; यह डॉक्टर नहीं है और निदान नहीं कर सकता। आपात स्थिति हो सकती है तो अभी अपने स्थानीय आपात नंबर पर कॉल करें (भारत: 112 / जहाँ उपलब्ध हो एम्बुलेंस 108)।',
+          'Apply steady pressure with clean cloth or gauze. Once bleeding is controlled, rinse with clean running water and cover. Seek urgent care for heavy or uncontrolled bleeding or a deep wound.':'साफ कपड़े या गॉज़ से लगातार दबाव डालें। रक्तस्राव रुकने पर साफ बहते पानी से धोकर ढक दें। अधिक या न रुकने वाले रक्तस्राव अथवा गहरे घाव पर तुरंत चिकित्सा सहायता लें।',
+          'Cool a small thermal burn under cool running water for 20 minutes. Do not apply ice, butter, or creams. Seek urgent care for large, deep, chemical, electrical, face, or airway burns.':'छोटे तापीय जलने पर 20 मिनट तक ठंडा बहता पानी डालें। बर्फ, मक्खन या क्रीम न लगाएँ। बड़े, गहरे, रासायनिक, बिजली से हुए, चेहरे या श्वसन मार्ग के जलने पर तुरंत चिकित्सा सहायता लें।',
+          'Note when symptoms started and call emergency services immediately for face drooping, arm weakness, or speech difficulty. Do not give food, drink, or medication.':'लक्षण शुरू होने का समय नोट करें। चेहरा लटकने, हाथ में कमजोरी या बोलने में कठिनाई पर तुरंत आपात सेवा को कॉल करें। खाना, पेय या दवा न दें।',
+          'Cardiology':'हृदय रोग','Neurology':'तंत्रिका विज्ञान','Pediatrics':'बाल रोग','General Medicine':'सामान्य चिकित्सा','Orthopedics':'हड्डी रोग','Psychology':'मनोविज्ञान',
+          'Holistic well-being and emotional counseling':'समग्र स्वास्थ्य और भावनात्मक परामर्श','Interventional Cardiologist':'इंटरवेंशनल हृदय रोग विशेषज्ञ','Neurology Department':'तंत्रिका विज्ञान विभाग',
+          'Qualifications as supplied:':'प्रदान की गई योग्यताएँ:','Map search':'मानचित्र खोज',
+          'User-provided listing; details, credentials, affiliation, location, and availability are not independently verified.':'उपयोगकर्ता द्वारा दी गई सूची; विवरण, योग्यताएँ, संबद्धता, स्थान और उपलब्धता स्वतंत्र रूप से सत्यापित नहीं हैं।',
+          'Sample directory entry; verify details independently.':'नमूना सूची प्रविष्टि; विवरण स्वयं सत्यापित करें।',
+          'The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Notifications require browser permission and the app must remain open. There is no clinical emergency dispatch or verified blood-bank connection.':'निर्देशिका में नमूना और उपयोगकर्ता द्वारा दी गई प्रविष्टियाँ हैं; HEALTHIO ने प्रदाताओं, योग्यताओं या उपलब्धता की स्वतंत्र पुष्टि नहीं की है। सूचनाओं के लिए ब्राउज़र अनुमति और ऐप खुला रहना आवश्यक है। आपातकालीन डॉक्टर भेजने या सत्यापित ब्लड बैंक से जुड़ने की सुविधा नहीं है।',
+          'The directory contains sample and user-provided listings; HEALTHIO has not independently verified providers, credentials, or availability. Confirm details directly with the provider before seeking care.':'निर्देशिका में नमूना और उपयोगकर्ता द्वारा दी गई प्रविष्टियाँ हैं; HEALTHIO ने प्रदाताओं, योग्यताओं या उपलब्धता की स्वतंत्र पुष्टि नहीं की है। इलाज लेने से पहले प्रदाता से सीधे विवरण की पुष्टि करें।',
+          'Browse sample and user-provided directory listings by specialty and city. HEALTHIO has not independently verified providers, credentials, affiliations, or availability; confirm details directly before seeking care.':'विशेषज्ञता और शहर से नमूना तथा उपयोगकर्ता द्वारा दी गई सूची देखें। HEALTHIO ने प्रदाताओं, योग्यताओं, संबद्धता या उपलब्धता की स्वतंत्र पुष्टि नहीं की है; इलाज से पहले सीधे पुष्टि करें।',
+          'Choose a specialty or city to search the directory.':'निर्देशिका खोजने के लिए विशेषज्ञता या शहर चुनें।',
+          'Password recovery is not configured in this prototype. Contact the service administrator.':'इस प्रोटोटाइप में पासवर्ड पुनर्प्राप्ति उपलब्ध नहीं है। सेवा व्यवस्थापक से संपर्क करें।',
+          'Please wait…':'कृपया प्रतीक्षा करें…','You have signed out.':'आप साइन आउट हो गए हैं।','Reminder marked done.':'रिमाइंडर पूरा चिह्नित किया गया।',
+          'Reminder updated.':'रिमाइंडर अपडेट किया गया।','Reminder deleted.':'रिमाइंडर हटाया गया।','Reminder saved.':'रिमाइंडर सहेजा गया।',
+          'This browser does not support notifications.':'यह ब्राउज़र सूचनाओं का समर्थन नहीं करता।','Permission enabled. Browser notifications require the app to remain open.':'अनुमति चालू है। ब्राउज़र सूचनाओं के लिए ऐप खुला रहना चाहिए।',
+          'Permission was not granted. Reminders remain available in this page.':'अनुमति नहीं मिली। इस पृष्ठ पर रिमाइंडर उपलब्ध रहेंगे।',
+          'Record uploaded. Review extracted information with your clinician.':'रिकॉर्ड अपलोड हुआ। निकाली गई जानकारी अपने डॉक्टर से जाँचें।',
+          'Browse available directory entries by specialty and city. These are sample entries, not verified live providers. Confirm credentials, availability, address, and contact details independently.':'विशेषता और शहर के अनुसार सूची देखें। ये नमूना प्रविष्टियाँ हैं, सत्यापित सक्रिय डॉक्टर नहीं। योग्यता, उपलब्धता, पता और संपर्क विवरण स्वयं जाँचें।',
+          'Directory entries are sample data from this prototype. Confirm credentials, availability, address, and contact details independently before seeking care.':'डॉक्टरों की सूची इस प्रोटोटाइप का नमूना डेटा है। इलाज लेने से पहले योग्यता, उपलब्धता, पता और संपर्क विवरण स्वयं जाँचें।',
+          "Add reminders based on your clinician's instructions. This app does not prescribe medicines or change a dose.":'अपने डॉक्टर के निर्देशों के अनुसार रिमाइंडर जोड़ें। यह ऐप दवा नहीं बताता और खुराक नहीं बदलता।',
+          'Registration stores your blood group and city with your profile. This demo does not share your contact details or send verified requests. You can withdraw consent at any time.':'आपका रक्त समूह और शहर प्रोफ़ाइल में सहेजा जाएगा। यह डेमो संपर्क विवरण साझा नहीं करता और सत्यापित अनुरोध नहीं भेजता। आप कभी भी सहमति वापस ले सकते हैं।',
+          'Life-threatening symptoms?':'क्या जानलेवा लक्षण हैं?',
+          'Show password':'पासवर्ड दिखाएँ','Hide password':'पासवर्ड छिपाएँ','Healthcare features':'स्वास्थ्य सुविधाएँ',
+          'Animated 3D-style heart':'3D शैली का धड़कता दिल','Animated ECG illustration':'चलता हुआ ECG चित्र',
+          'Enter your name and a password with at least 8 characters.':'अपना नाम और कम से कम 8 अक्षरों का पासवर्ड दर्ज करें।',
+          'Enter your email and password.':'अपना ईमेल और पासवर्ड दर्ज करें।',
+          'Assistant is responding…':'सहायक जवाब दे रहा है…','Health education assistant':'स्वास्थ्य जानकारी सहायक',
+        }
+      };
+      const pregnancyGuideCopy = {
+        en: [
+          'Arrange prenatal care when you learn you are pregnant. Discuss health conditions and all medicines or supplements; do not stop prescribed treatment without advice.',
+          'Ask your clinician which routine checks or tests are appropriate for you; timing varies by person and location.',
+          'Discuss nausea, nutrition, and safe food handling with your clinician. Do not start supplements without advice.',
+          'Ask your clinician whether movement is suitable for you and which activities are appropriate for your pregnancy.',
+          'Continue your prenatal care and bring questions about symptoms, medicines, or your care plan.',
+          'Review balanced meals, hydration, local food-safety guidance, and any personal dietary needs with your clinician.',
+          'Tell your prenatal care team about new symptoms or concerns; seek urgent help if symptoms are severe.',
+          'Confirm how to contact your maternity care team and discuss support or transport needs.',
+          'Talk through birth preferences and your care options with your maternity team; plans can change.',
+          'Confirm your maternity contact and transport plan, and review when to seek urgent care.'
+        ],
+        ta: [
+          'கர்ப்பம் தெரிந்ததும் மகப்பேறு பராமரிப்பைத் தொடங்குங்கள். உடல்நிலைகள், மருந்துகள் மற்றும் கூடுதல் ஊட்டச்சத்துகள் பற்றி பேசுங்கள்; ஆலோசனையின்றி பரிந்துரைக்கப்பட்ட சிகிச்சையை நிறுத்த வேண்டாம்.',
+          'உங்களுக்கு ஏற்ற வழக்கமான பரிசோதனைகள் அல்லது சோதனைகள் எவை என்று மருத்துவரிடம் கேளுங்கள்; நேரம் நபர் மற்றும் இடத்தைப் பொறுத்து மாறும்.',
+          'குமட்டல், ஊட்டச்சத்து மற்றும் பாதுகாப்பான உணவு முறையை மருத்துவரிடம் பேசுங்கள். ஆலோசனையின்றி கூடுதல் ஊட்டச்சத்துகளைத் தொடங்க வேண்டாம்.',
+          'இயக்கம் உங்களுக்கு ஏற்றதா, உங்கள் கர்ப்பத்திற்கு எந்தச் செயல்கள் பொருத்தமானவை என மருத்துவரிடம் கேளுங்கள்.',
+          'மகப்பேறு பராமரிப்பைத் தொடருங்கள்; அறிகுறிகள், மருந்துகள் அல்லது பராமரிப்புத் திட்டம் பற்றிய கேள்விகளைக் கேளுங்கள்.',
+          'சமநிலையான உணவு, நீரேற்றம், உள்ளூர் உணவுப் பாதுகாப்பு மற்றும் தனிப்பட்ட உணவுத் தேவைகளை மருத்துவருடன் பரிசீலிக்கவும்.',
+          'புதிய அறிகுறிகள் அல்லது கவலைகளை மகப்பேறு குழுவிடம் தெரிவியுங்கள்; கடுமையான அறிகுறிகளுக்கு உடனடி உதவி பெறுங்கள்.',
+          'மகப்பேறு குழுவை எவ்வாறு தொடர்புகொள்வது என்பதை உறுதிசெய்து, உதவி அல்லது போக்குவரத்துத் தேவைகளைப் பேசுங்கள்.',
+          'பிரசவ விருப்பங்கள் மற்றும் பராமரிப்பு வாய்ப்புகளை மகப்பேறு குழுவுடன் பேசுங்கள்; திட்டங்கள் மாறலாம்.',
+          'மகப்பேறு தொடர்பு மற்றும் போக்குவரத்துத் திட்டத்தை உறுதிசெய்து, அவசர உதவி எப்போது தேவை என்பதைப் பரிசீலிக்கவும்.'
+        ],
+        hi: [
+          'गर्भावस्था का पता चलने पर प्रसूति देखभाल शुरू करें। स्वास्थ्य स्थितियों, दवाओं और सप्लीमेंट के बारे में बात करें; बिना सलाह निर्धारित इलाज बंद न करें।',
+          'डॉक्टर से पूछें कि आपके लिए कौन-सी नियमित जाँच उचित हैं; समय व्यक्ति और स्थान के अनुसार बदल सकता है।',
+          'मतली, पोषण और सुरक्षित भोजन के बारे में डॉक्टर से बात करें। सलाह के बिना सप्लीमेंट शुरू न करें।',
+          'डॉक्टर से पूछें कि गतिविधि आपके लिए उपयुक्त है या नहीं और कौन-सी गतिविधियाँ आपकी गर्भावस्था के लिए ठीक हैं।',
+          'प्रसूति देखभाल जारी रखें और लक्षणों, दवाओं या देखभाल योजना के बारे में प्रश्न पूछें।',
+          'संतुलित भोजन, पानी, स्थानीय खाद्य-सुरक्षा सलाह और अपनी आहार ज़रूरतों की डॉक्टर से समीक्षा करें।',
+          'नए लक्षण या चिंता प्रसूति टीम को बताएँ; गंभीर लक्षणों में तत्काल सहायता लें।',
+          'प्रसूति टीम से संपर्क करने का तरीका पक्का करें और सहायता या यात्रा की ज़रूरतों पर बात करें।',
+          'प्रसूति टीम से प्रसव की प्राथमिकताओं और देखभाल विकल्पों पर चर्चा करें; योजनाएँ बदल सकती हैं।',
+          'प्रसूति संपर्क और यात्रा योजना पक्की करें तथा तत्काल देखभाल कब लेनी है इसकी समीक्षा करें।'
+        ]
+      };
+      const originalText = new WeakMap();
+      const originalAttributes = new WeakMap();
+      const state = { token: sessionStorage.getItem('hc_token'), user: null, authMode: 'login', loading: false, loadingTimer: null, landingLaunching: false, chatPending: false, history: [], schedules: [], language: 'en' };
+      let toastTimer;
+
+      function translateText(text) {
+        return translations[state.language]?.[text] || text;
+      }
+
+      function renderPregnancyGuide() {
+        const target = $('pregnancyMonthGuide');
+        if (!target) return;
+        const month = Number($('pregnancyMonth').value) || 1;
+        const weeks = [`1–4`,`5–8`,`9–12`,`13–16`,`17–20`,`21–24`,`25–28`,`29–32`,`33–36`,`37–40`][month - 1];
+        const guidance = pregnancyGuideCopy[state.language][month - 1];
+        target.replaceChildren();
+        const heading = document.createElement('strong');
+        heading.textContent = `${translateText('Month')} ${month} · ${translateText('Approximate weeks')}: ${weeks}`;
+        target.append(heading);
+        const paragraph = document.createElement('p');
+        paragraph.textContent = guidance;
+        target.append(paragraph);
+      }
+
+      function applyTranslations(root = document.body) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+          const original = originalText.get(node) || '';
+          const trimmed = original.trim();
+          if (trimmed) {
+            const start = original.indexOf(trimmed);
+            node.nodeValue = `${original.slice(0, start)}${translateText(trimmed)}${original.slice(start + trimmed.length)}`;
+          }
+        }
+        if (root.nodeType === Node.ELEMENT_NODE) {
+          const elements = [root, ...root.querySelectorAll('*')];
+          elements.forEach(element => ['placeholder','aria-label','title','data-chat-prompt'].forEach(attribute => {
+            if (!element.hasAttribute(attribute)) return;
+            let saved = originalAttributes.get(element);
+            if (!saved) { saved = {}; originalAttributes.set(element, saved); }
+            if (!(attribute in saved)) saved[attribute] = element.getAttribute(attribute);
+            element.setAttribute(attribute, translateText(saved[attribute]));
+          }));
+        }
+      }
+
+      function setLanguage(language, persist = true) {
+        state.language = Object.hasOwn(languageNames, language) ? language : 'en';
+        $('languageSelect').value = state.language;
+        document.documentElement.lang = state.language;
+        if (persist) localStorage.setItem('healthio_language', state.language);
+        applyTranslations();
+        renderPregnancyGuide();
+        if (state.token && $('view-pregnancy').classList.contains('active')) loadPregnancyReminders();
+        if (state.token && $('view-doctors').classList.contains('active')) loadDoctors();
+        if (state.token && $('view-specialists').classList.contains('active')) {
+          loadDoctors({specialtyId:'specialistType',cityId:'specialistCity',resultId:'specialistResults'});
+        }
+      }
+
+      $('languageSelect').addEventListener('change', event => setLanguage(event.target.value));
+      setLanguage(localStorage.getItem('healthio_language') || 'en', false);
+      new MutationObserver(mutations => mutations.forEach(mutation =>
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) applyTranslations(node);
+        })
+      )).observe(document.body, {childList:true,subtree:true});
+
+      function toast(message) {
+        const node = $('toast');
+        node.textContent = message;
+        node.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => node.classList.remove('show'), 3500);
+      }
+
+      function page(pageId, push = true, replace = false) {
+        const protectedIds = ['dashboard','doctors','schedule','emergency','specialists','pregnancy','community'];
+        if (state.loading && pageId !== 'loading') {
+          window.clearTimeout(state.loadingTimer);
+          state.loadingTimer = null;
+          state.loading = false;
+        }
+        if (protectedIds.includes(pageId) && !state.token) pageId = 'auth';
+        document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === pageId));
+        $('app').classList.toggle('active', protectedIds.includes(pageId));
+        if ($('app').classList.contains('active')) {
+          document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === `view-${pageId}`));
+          document.querySelectorAll('.nav [data-view]').forEach(el => {
+            if (el.dataset.view === pageId) el.setAttribute('aria-current','page');
+            else el.removeAttribute('aria-current');
+          });
+          if (pageId === 'doctors') loadDoctors();
+          if (pageId === 'specialists') loadDoctors({specialtyId:'specialistType',cityId:'specialistCity',resultId:'specialistResults'});
+          if (pageId === 'schedule') { loadSchedules(); loadRecords(); }
+          if (pageId === 'pregnancy') { renderPregnancyGuide(); loadPregnancyReminders(); }
+          if (pageId === 'community') loadDonorPreference();
+        }
+        if (push) {
+          if (replace) history.replaceState({pageId}, '', `#${pageId}`);
+          else history.pushState({pageId}, '', `#${pageId}`);
+        }
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+
+      function navigateToFeature(pageId) {
+        if (state.loading || !document.getElementById(`view-${pageId}`)) return;
+        if (document.getElementById(`view-${pageId}`).classList.contains('active')) return;
+        page('loading');
+        runLoading(pageId,'Loading...',900);
+      }
+
+      async function api(path, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (state.token) headers.set('Authorization', `Bearer ${state.token}`);
+        if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) headers.set('Content-Type','application/json');
+        const response = await fetch(path, {...options, headers});
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          if (response.status === 401 && state.token) signOut(false);
+          throw new Error(payload.detail || `Request failed (${response.status})`);
+        }
+        return response.json();
+      }
+
+      function setAuthMode(mode) {
+        state.authMode = mode;
+        const registering = mode === 'register';
+        $('nameField').hidden = !registering;
+        $('profileFields').hidden = !registering;
+        $('fullName').required = registering;
+        $('auth-title').textContent = registering ? 'Create your account' : 'Welcome to HEALTHIO';
+        $('authSubmit').textContent = registering ? 'Create account' : 'Log in';
+        $('loginTab').classList.toggle('outline', registering);
+        $('registerTab').classList.toggle('outline', !registering);
+        $('loginTab').setAttribute('aria-selected', String(!registering));
+        $('registerTab').setAttribute('aria-selected', String(registering));
+        $('password').autocomplete = registering ? 'new-password' : 'current-password';
+        $('authError').textContent = '';
+      }
+
+      async function submitAuth(event) {
+        event.preventDefault();
+        const email = $('email').value.trim();
+        const password = $('password').value;
+        if (!email || !password || (state.authMode === 'register' && (!$('fullName').value.trim() || password.length < 8))) {
+          $('authError').textContent = state.authMode === 'register' ? 'Enter your name and a password with at least 8 characters.' : 'Enter your email and password.';
+          return;
+        }
+        const button = $('authSubmit');
+        button.disabled = true;
+        $('authError').textContent = '';
+        try {
+          const body = state.authMode === 'register'
+            ? {name:$('fullName').value.trim(), email, password, age:Number($('age').value)||0, blood_group:$('bloodGroup').value, language:languageNames[state.language]}
+            : {email, password};
+          const result = await api(`/api/auth/${state.authMode === 'register' ? 'register' : 'login'}`, {method:'POST',body:JSON.stringify(body)});
+          state.token = result.access_token;
+          state.user = result.user;
+          sessionStorage.setItem('hc_token',state.token);
+          sessionStorage.setItem('hc_user',JSON.stringify({id:state.user.id,name:state.user.name?.[0]?.text || 'Patient'}));
+          $('profileName').textContent = state.user.name?.[0]?.text || 'Patient';
+          page('loading');
+          runLoading('dashboard','Preparing your dashboard…',2200);
+        } catch (error) {
+          $('authError').textContent = error.message;
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      function runLoading(next, message, duration) {
+        if (state.loading) return;
+        state.loading = true;
+        $('loadingStatus').textContent = message;
+        state.loadingTimer = window.setTimeout(() => {
+          state.loading = false;
+          state.loadingTimer = null;
+          page(next,true,true);
+        },duration);
+      }
+
+      async function signOut(showMessage = true) {
+        const token = state.token;
+        state.token = null;
+        state.user = null;
+        sessionStorage.removeItem('hc_token');
+        sessionStorage.removeItem('hc_user');
+        if (token) {
+          try { await fetch('/api/auth/logout',{method:'POST',headers:{Authorization:`Bearer ${token}`} }); }
+          catch (error) { console.error('Could not revoke session:',error); }
+        }
+        page('welcome');
+        if (showMessage) toast('You have signed out.');
+      }
+
+      function safeText(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
+
+      async function loadDoctors({specialtyId='doctorSpecialty',cityId='doctorCity',resultId='doctorResults'} = {}) {
+        const result = $(resultId);
+        result.innerHTML = '<p class="empty">Loading directory…</p>';
+        try {
+          const query = new URLSearchParams({specialty:$(specialtyId).value.trim(),city:$(cityId).value.trim()});
+          const doctors = await api(`/api/doctors?${query}`);
+          result.innerHTML = doctors.length ? doctors.map(doc => {
+            const name = doc.name?.[0]?.text || 'Directory entry';
+            const phone = doc.telecom?.find(item=>item.system==='phone')?.value;
+            const location = [doc.address, doc.city].filter(value => typeof value === 'string' && value.trim()).join(' · ');
+            const focus = typeof doc.focus === 'string' && doc.focus.trim() ? `<small>${safeText(translateText(doc.focus))}</small>` : '';
+            const qualifications = typeof doc.qualifications === 'string' && doc.qualifications.trim() ? `<small>${safeText(translateText('Qualifications as supplied:'))} ${safeText(doc.qualifications)}</small>` : '';
+            const listingNote = doc.listing_source === 'user-provided'
+              ? 'User-provided listing; details, credentials, affiliation, location, and availability are not independently verified.'
+              : 'Sample directory entry; verify details independently.';
+            const locationLink = location
+              ? `<a class="btn outline small" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}">${safeText(translateText('Map search'))}</a>`
+              : '';
+            return `<article class="item"><div><strong>${safeText(name)}</strong><small>${safeText(translateText(doc.specialty))}${location ? ` · ${safeText(location)}` : ''}</small>${focus}${qualifications}<small>${safeText(translateText(listingNote))}</small></div><div class="actions">${phone?`<a class="btn outline small" href="tel:${safeText(phone)}">Contact</a>`:''}${locationLink}</div></article>`;
+          }).join('') : '<p class="empty">No directory entries match. Try another search.</p>';
+        } catch (error) { result.innerHTML = `<p class="notice" role="alert">${safeText(error.message)}</p>`; }
+      }
+
+      async function loadSchedules() {
+        const list = $('scheduleList');
+        list.innerHTML = '<p class="empty">Loading reminders…</p>';
+        try {
+          const uid = state.user?.id;
+          if (!uid) throw new Error('Signed-in profile is unavailable. Sign in again.');
+          const items = await api(`/api/schedule/${encodeURIComponent(uid)}`);
+          state.schedules = items;
+          list.innerHTML = items.length ? items.map(item => {
+            const kindLabel = {medicine:'Prescribed medicine',food:'Meal',hydration:'Hydration',activity:'Gentle activity'}[item.kind] || item.kind || 'medicine';
+            return `<article class="item"><div><strong>${safeText(item.title || item.medicine || 'Reminder')}</strong><small>${safeText(translateText(kindLabel))} · ${(item.times || []).map(safeText).join(', ')}${item.details ? ` · ${safeText(item.details)}`:''}</small></div><div class="actions"><button class="btn outline small" type="button" data-taken-schedule="${safeText(item.id)}">Done</button><button class="btn outline small" type="button" data-edit-schedule="${safeText(item.id)}">Edit</button><button class="btn outline small" type="button" data-delete-schedule="${safeText(item.id)}">Delete</button></div></article>`;
+          }).join('') : '<p class="empty">No reminders saved yet.</p>';
+          list.querySelectorAll('[data-edit-schedule]').forEach(button=>button.addEventListener('click',()=>editSchedule(items.find(item=>item.id===button.dataset.editSchedule))));
+          list.querySelectorAll('[data-delete-schedule]').forEach(button=>button.addEventListener('click',()=>deleteSchedule(button.dataset.deleteSchedule)));
+          list.querySelectorAll('[data-taken-schedule]').forEach(button=>button.addEventListener('click',()=>markScheduleDone(button.dataset.takenSchedule)));
+          checkScheduledNotifications(items);
+        } catch (error) { list.innerHTML = `<p class="notice" role="alert">${safeText(error.message)}</p>`; }
+      }
+
+      async function loadPregnancyReminders() {
+        const list = $('pregnancyReminderList');
+        try {
+          const uid = state.user?.id;
+          if (!uid) throw new Error('Signed-in profile is unavailable. Sign in again.');
+          const items = await api(`/api/schedule/${encodeURIComponent(uid)}`);
+          state.schedules = items;
+          const pregnancyItems = items.filter(item => /^pregnancy_month=\d{1,2};/.test(item.details || ''));
+          list.innerHTML = pregnancyItems.length ? pregnancyItems.map(item => {
+            const month = Number(item.details.match(/^pregnancy_month=(\d{1,2});/)[1]);
+            const note = item.details.replace(/^pregnancy_month=\d{1,2};\s*/, '');
+            const kindLabel = {medicine:'Clinician-prescribed tablet',food:'Meal / hydration',activity:'Clinician-approved movement'}[item.kind] || item.kind;
+            return `<article class="item"><div><strong>${safeText(item.title || item.medicine || 'Reminder')}</strong><small>${safeText(translateText(`Month`) + ' ' + month)} · ${safeText(translateText(kindLabel))} · ${(item.times || []).map(safeText).join(', ')}${note ? ` · ${safeText(note)}` : ''}</small></div><div class="actions"><button class="btn outline small" type="button" data-preg-edit="${safeText(item.id)}">Edit</button><button class="btn outline small" type="button" data-preg-delete="${safeText(item.id)}">Delete</button></div></article>`;
+          }).join('') : '<p class="empty">Your pregnancy reminders will appear here.</p>';
+          list.querySelectorAll('[data-preg-edit]').forEach(button => button.addEventListener('click', async () => {
+            await editSchedule(pregnancyItems.find(item => item.id === button.dataset.pregEdit));
+            await loadPregnancyReminders();
+          }));
+          list.querySelectorAll('[data-preg-delete]').forEach(button => button.addEventListener('click', async () => {
+            await deleteSchedule(button.dataset.pregDelete);
+            await loadPregnancyReminders();
+          }));
+        } catch (error) { list.innerHTML = `<p class="notice" role="alert">${safeText(error.message)}</p>`; }
+      }
+
+      async function markScheduleDone(id) {
+        const now=new Date();
+        const time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        try { await api(`/api/schedule/${encodeURIComponent(id)}/taken?time=${encodeURIComponent(time)}`,{method:'POST'}); toast('Reminder marked done.'); }
+        catch(error){toast(error.message);}
+      }
+
+      function checkScheduledNotifications(items) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const now=new Date();
+        const day=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const sent=JSON.parse(sessionStorage.getItem('hc_notified')||'[]');
+        items.forEach(item=>{
+          (item.times||[]).forEach(reminderTime=>{
+            const key=`${day}:${item.id}:${reminderTime}`;
+            if(reminderTime===time&&!sent.includes(key)){
+              new Notification(item.title||item.medicine||'Health reminder',{body:'Open HEALTHIO to review your reminder. Follow your clinician’s instructions.'});
+              sent.push(key);
+            }
+          });
+        });
+        sessionStorage.setItem('hc_notified',JSON.stringify(sent.slice(-200)));
+      }
+
+      async function editSchedule(item) {
+        if (!item) return;
+        const title = prompt('Reminder name:', item.title || item.medicine || '');
+        if (title === null) return;
+        const time = prompt('Time (24-hour HH:MM):', item.times?.[0] || '08:00');
+        if (time === null) return;
+        try {
+          await api(`/api/schedule/${encodeURIComponent(item.id)}`,{method:'PUT',body:JSON.stringify({kind:item.kind || 'medicine',title:title.trim(),time,details:item.details || ''})});
+          await loadSchedules();
+          toast('Reminder updated.');
+        } catch (error) { toast(error.message); }
+      }
+
+      async function deleteSchedule(id) {
+        if (!confirm('Delete this reminder?')) return;
+        try { await api(`/api/schedule/${encodeURIComponent(id)}`,{method:'DELETE'}); await loadSchedules(); toast('Reminder deleted.'); }
+        catch (error) { toast(error.message); }
+      }
+
+      $('scheduleForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const uid = state.user?.id;
+        const title = $('scheduleTitle').value.trim();
+        if (!uid || !title) { toast('Enter a reminder name.'); return; }
+        try {
+          await api(`/api/schedule/${encodeURIComponent(uid)}`,{method:'POST',body:JSON.stringify({kind:$('scheduleKind').value,title,time:$('scheduleTime').value,details:$('scheduleDetails').value.trim()})});
+          event.target.reset();
+          await loadSchedules();
+          toast('Reminder saved.');
+        } catch (error) { toast(error.message); }
+      });
+
+      $('pregnancyMonth').addEventListener('change', renderPregnancyGuide);
+      $('pregnancyReminderForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const uid = state.user?.id;
+        const title = $('pregnancyReminderTitle').value.trim();
+        if (!uid || !title) { toast('Enter a reminder name.'); return; }
+        const month = Number($('pregnancyMonth').value);
+        const note = $('pregnancyReminderDetails').value.trim();
+        try {
+          await api(`/api/schedule/${encodeURIComponent(uid)}`, {method:'POST',body:JSON.stringify({
+            kind:$('pregnancyReminderKind').value,
+            title,
+            time:$('pregnancyReminderTime').value,
+            details:`pregnancy_month=${month}; ${note}`
+          })});
+          event.target.reset();
+          await loadPregnancyReminders();
+          toast('Pregnancy reminder saved.');
+        } catch (error) { toast(error.message); }
+      });
+
+      $('notifyPermission').addEventListener('click', async () => {
+        if (!('Notification' in window)) { $('notificationStatus').textContent = 'This browser does not support notifications.'; return; }
+        const permission = await Notification.requestPermission();
+        $('notificationStatus').textContent = permission === 'granted' ? 'Permission enabled. Browser notifications require the app to remain open.' : 'Permission was not granted. Reminders remain available in this page.';
+        if (permission === 'granted') {
+          new Notification('HEALTHIO reminders enabled',{body:'Keep the app open to receive scheduled reminders.'});
+          checkScheduledNotifications(state.schedules);
+        }
+      });
+
+      async function loadRecords() {
+        const area = $('recordResults');
+        try {
+          const uid = state.user?.id;
+          const records = await api(`/api/records/${encodeURIComponent(uid)}`);
+          area.innerHTML = records.length ? records.map(record=>`<article class="item"><div><strong>${safeText(record.type?.text || 'Medical record')}</strong><small>${safeText(record.date || '')} · ${safeText(record.extracted?.doctor || 'Clinician not specified')}</small><small>${safeText(record.summary?.English || record.extracted?.findings || 'Record uploaded.')}</small></div></article>`).join('') : '<p class="empty">No records uploaded.</p>';
+          const listedMedicines = records.flatMap(record =>
+            (Array.isArray(record.extracted?.medicines) ? record.extracted.medicines : [])
+              .filter(medicine => medicine && typeof medicine.name === 'string' && medicine.name.trim())
+              .map(medicine => ({medicine, date:record.date, documentType:record.type?.text}))
+          );
+          $('recordMedicineList').innerHTML = listedMedicines.length ? listedMedicines.map(({medicine, date, documentType}) => {
+            const details = [
+              typeof medicine.dosage === 'string' && medicine.dosage.trim() ? `${translateText('Extracted dosage:')} ${medicine.dosage}` : '',
+              typeof medicine.frequency === 'string' && medicine.frequency.trim() ? `${translateText('Extracted frequency:')} ${medicine.frequency}` : '',
+              Array.isArray(medicine.times) && medicine.times.length ? `${translateText('Extracted times:')} ${medicine.times.filter(value => typeof value === 'string').join(', ')}` : '',
+              typeof medicine.with_food === 'string' && medicine.with_food !== 'any' ? `${translateText('Extracted food instruction:')} ${medicine.with_food}` : ''
+            ].filter(Boolean);
+            return `<article class="item"><div><strong>${safeText(medicine.name)}</strong><small>${safeText(date || 'Date not available')} · ${safeText(documentType || 'Uploaded document')}</small>${details.length ? `<small>${safeText(details.join(' · '))}</small>` : ''}</div></article>`;
+          }).join('') : '<p class="empty">No medicine names were extracted from uploaded records.</p>';
+        } catch (error) {
+          area.innerHTML = `<p class="notice" role="alert">${safeText(error.message)}</p>`;
+          $('recordMedicineList').innerHTML = `<p class="notice" role="alert">${safeText(error.message)}</p>`;
+        }
+      }
+
+      $('uploadForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const file = $('recordFile').files[0];
+        if (!file || file.size > 10*1024*1024) { toast('Choose a file smaller than 10 MB.'); return; }
+        const data = new FormData();
+        data.set('user_id',state.user.id);
+        data.set('language',languageNames[state.language]);
+        data.set('file',file);
+        try { await api('/api/upload',{method:'POST',body:data}); $('recordFile').value=''; await loadRecords(); toast('Record uploaded. Review extracted information with your clinician.'); }
+        catch (error) { toast(error.message); }
+      });
+
+      $('medicineSearch').addEventListener('submit', async event => {
+        event.preventDefault();
+        const query = $('medicineQuery').value.trim();
+        const results = $('medicineResults');
+        results.innerHTML = '<p class="empty">Searching official labels…</p>';
+        try {
+          const term = query.replace(/["\\]/g,' ').trim();
+          const search = `openfda.brand_name:"${term}"+OR+openfda.generic_name:"${term}"`;
+          const url = `https://api.fda.gov/drug/label.json?search=${encodeURIComponent(search)}&limit=5`;
+          const response = await fetch(url);
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error?.message || 'No matching label was found.');
+          results.innerHTML = payload.results.map(label => {
+            const brand = label.openfda?.brand_name?.[0] || '';
+            const generic = label.openfda?.generic_name?.[0] || '';
+            const block = (heading, value) => value ? `<div><strong>${heading}</strong><p class="muted">${safeText((Array.isArray(value)?value.join(' '):value).slice(0,1800))}</p></div>` : '';
+            return `<article class="item"><div><strong>${safeText(brand || generic || query)} ${brand&&generic?`(${safeText(generic)})`:''}</strong>${block('General use',label.indications_and_usage?.[0])}${block('Warnings / precautions',label.warnings?.[0] || label.precautions?.[0])}${block('Label-listed adverse reactions',label.adverse_reactions?.[0])}</div></article>`;
+          }).join('');
+        } catch (error) { results.innerHTML = `<p class="notice" role="alert">${safeText(error.message)} Check the medicine name or try again later.</p>`; }
+      });
+
+      async function loadDonorPreference() {
+        let profile = state.user?.extension || {};
+        try {
+          const user=await api(`/api/users/${encodeURIComponent(state.user.id)}`);
+          state.user=user;
+          profile=user.extension || {};
+          $('donorCity').value=profile.donor_city || '';
+          $('donorGroup').value=profile.blood_group || $('donorGroup').value;
+        } catch(error) { $('donorStatus').textContent=error.message; }
+        $('donorConsent').checked = Boolean(profile.donor_opt_in);
+        $('donorStatus').textContent = profile.donor_opt_in ? 'You are currently opted in. Contact details are not shared by this demo.' : 'You are not currently opted in.';
+        const alerts=$('donorAlerts');
+        try {
+          const received=await api(`/api/blood/alerts/${encodeURIComponent(state.user.id)}`);
+          alerts.innerHTML=received.length?received.map(item=>`<article class="item"><div><strong>${safeText(item.blood_group || 'Blood request')} · ${safeText(item.units || 1)} unit(s)</strong><small>${safeText(item.hospital || 'Hospital not listed')} · ${safeText(item.distance_km ?? 'Distance unavailable')} km</small><small>Unverified demo alert. Confirm directly with a legitimate hospital or blood bank before acting.</small></div></article>`).join(''):'<p class="empty">No donor alerts available.</p>';
+        } catch(error) { alerts.innerHTML=`<p class="notice" role="alert">${safeText(error.message)}</p>`; }
+      }
+
+      async function setDonor(available) {
+        if (!state.user?.id) return;
+        try {
+          const params = new URLSearchParams({uid:state.user.id,available:String(available),blood_group:$('donorGroup').value,city:$('donorCity').value.trim()});
+          const user = await api(`/api/blood/register?${params}`,{method:'POST'});
+          state.user = user;
+          $('donorConsent').checked = available;
+          $('donorStatus').textContent = available ? 'Preference saved. This demo does not share your contact details or send verified alerts.' : 'Donor preference withdrawn.';
+        } catch (error) { toast(error.message); }
+      }
+      $('donorForm').addEventListener('submit',event=>{event.preventDefault();if(!$('donorCity').value.trim()){toast('Enter your city or service area to opt in.');return;}if(!$('donorConsent').checked){toast('Tick the consent box to opt in.');return;}setDonor(true);});
+      $('withdrawDonor').addEventListener('click',()=>setDonor(false));
+
+      async function sendChatMessage(message) {
+        if (!message || state.chatPending || !state.user?.id) return;
+        state.chatPending = true;
+        const area = $('chatMessages');
+        area.querySelector('.empty')?.remove();
+        const userArticle = document.createElement('article');
+        userArticle.className = 'item';
+        const userContent = document.createElement('div');
+        const userTitle = document.createElement('strong');
+        userTitle.textContent = 'You';
+        const userText = document.createElement('p');
+        userText.className = 'chat-response';
+        userText.textContent = message;
+        userContent.append(userTitle, userText);
+        userArticle.append(userContent);
+        area.append(userArticle);
+        $('chatMessage').value = '';
+        $('chatSend').disabled = true;
+        $('clearChat').disabled = true;
+        document.querySelectorAll('[data-chat-prompt]').forEach(button => { button.disabled = true; });
+        const pending = document.createElement('p');
+        pending.className = 'empty';
+        pending.textContent = 'Assistant is responding…';
+        area.append(pending);
+        try {
+          const result = await api('/api/chat', {method:'POST',body:JSON.stringify({
+            user_id:state.user.id,
+            message,
+            language:languageNames[state.language],
+            history:state.history
+          })});
+          pending.remove();
+          const assistant = result.reply || 'No response was returned.';
+          state.history.push({role:'user',content:message},{role:'assistant',content:assistant});
+          state.history = state.history.slice(-10);
+          const article = document.createElement('article');
+          article.className = 'item';
+          const content = document.createElement('div');
+          const title = document.createElement('strong');
+          title.textContent = 'Health education assistant';
+          const text = document.createElement('p');
+          text.className = 'chat-response';
+          text.textContent = assistant;
+          content.append(title, text);
+          article.append(content);
+          area.append(article);
+        } catch (error) {
+          pending.textContent = error.message;
+          pending.setAttribute('role','alert');
+        } finally {
+          state.chatPending = false;
+          $('chatSend').disabled = false;
+          $('clearChat').disabled = false;
+          document.querySelectorAll('[data-chat-prompt]').forEach(button => { button.disabled = false; });
+        }
+      }
+
+      $('chatForm').addEventListener('submit', event => {
+        event.preventDefault();
+        sendChatMessage($('chatMessage').value.trim());
+      });
+      document.querySelectorAll('[data-chat-prompt]').forEach(button => button.addEventListener('click', () => {
+        $('chatMessage').value = button.dataset.chatPrompt;
+        $('chatMessage').focus();
+      }));
+      $('clearChat').addEventListener('click', () => {
+        if (state.chatPending) return;
+        state.history = [];
+        $('chatMessages').innerHTML = '<p class="empty">Ask a general health education question. Do not share sensitive identifying details.</p>';
+      });
+
+      function setupWelcomeScene() {
+        const particles=document.querySelector('.ambient-particles');
+        for(let index=0;index<18;index++){
+          const particle=document.createElement('span');
+          particle.className='ambient-particle';
+          particle.style.left=`${(index*47+11)%100}%`;
+          particle.style.top=`${(index*31+7)%100}%`;
+          particle.style.setProperty('--particle-duration',`${7+(index%6)}s`);
+          particle.style.setProperty('--particle-delay',`${-(index%9)}s`);
+          particles.append(particle);
+        }
+      }
+
+      $('startButton').addEventListener('mouseenter',()=> $('welcome').classList.add('energized'));
+      $('startButton').addEventListener('mouseleave',()=> $('welcome').classList.remove('energized'));
+      $('startButton').addEventListener('focus',()=> $('welcome').classList.add('energized'));
+      $('startButton').addEventListener('blur',()=> $('welcome').classList.remove('energized'));
+      $('startButton').addEventListener('click',()=>{
+        if(state.loading||state.landingLaunching)return;
+        state.landingLaunching=true;
+        $('startButton').disabled=true;
+        $('welcome').classList.add('launching');
+        $('welcome').setAttribute('aria-busy','true');
+        const launchDelay=window.matchMedia('(prefers-reduced-motion: reduce)').matches?120:460;
+        setTimeout(()=>{
+          $('welcome').classList.remove('launching');
+          $('welcome').removeAttribute('aria-busy');
+          $('startButton').disabled=false;
+          page('loading');
+          state.landingLaunching=false;
+          runLoading('auth','Checking your heartbeat…',2500);
+        },launchDelay);
+      });
+      $('loginTab').addEventListener('click',()=>setAuthMode('login'));
+      $('registerTab').addEventListener('click',()=>setAuthMode('register'));
+      $('togglePassword').addEventListener('click',()=>{
+        const input=$('password');const show=input.type==='password';input.type=show?'text':'password';$('togglePassword').textContent=show?'Hide':'Show';$('togglePassword').setAttribute('aria-label',show?'Hide password':'Show password');
+      });
+      $('authForm').addEventListener('submit',submitAuth);
+      $('forgotPassword').addEventListener('click',event=>{
+        event.preventDefault();
+        $('authError').textContent='Password recovery is not configured in this prototype. Contact the service administrator.';
+      });
+      $('logoutButton').addEventListener('click',()=>signOut());
+      $('doctorSearch').addEventListener('submit',event=>{event.preventDefault();loadDoctors();});
+      $('specialistSearch').addEventListener('submit',event=>{event.preventDefault();loadDoctors({specialtyId:'specialistType',cityId:'specialistCity',resultId:'specialistResults'});});
+      document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>navigateToFeature(button.dataset.view)));
+      window.addEventListener('popstate',()=>{
+        let view=location.hash.slice(1)||'welcome';
+        if(['welcome','loading','auth'].includes(view)){page(view,false);return;}
+        if(!state.token){page('auth',false);return;}
+        if(!['dashboard','doctors','schedule','emergency','specialists','pregnancy','community'].includes(view))view='dashboard';
+        page(view,false);
+      });
+      window.addEventListener('DOMContentLoaded',()=>{
+        setupWelcomeScene();setAuthMode('login');
+        setInterval(()=>checkScheduledNotifications(state.schedules),15000);
+        let cached=null;
+        try { cached=JSON.parse(sessionStorage.getItem('hc_user')||'null'); }
+        catch(error) { console.warn('Saved profile data was unreadable and has been cleared.',error); sessionStorage.removeItem('hc_user'); }
+        if(state.token&&cached){
+          state.user={id:cached.id,name:[{text:cached.name}]};
+          $('profileName').textContent=cached.name;
+          api(`/api/users/${encodeURIComponent(cached.id)}`).then(user=>{
+            state.user=user;
+            const requested=location.hash.slice(1);
+            page(['dashboard','doctors','schedule','emergency','specialists','pregnancy','community'].includes(requested)?requested:'dashboard',false);
+          }).catch(error=>{
+            console.error('Could not restore profile:',error);
+            state.token=null;
+            sessionStorage.removeItem('hc_token');
+            sessionStorage.removeItem('hc_user');
+            history.replaceState({pageId:'welcome'},'','#welcome');
+            page('welcome',false);
+          });
+        }else{
+          state.token=null;
+          sessionStorage.removeItem('hc_token');
+          history.replaceState({pageId:'welcome'},'','#welcome');
+          page('welcome',false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
